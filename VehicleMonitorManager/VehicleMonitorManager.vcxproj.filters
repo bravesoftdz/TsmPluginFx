@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="DllMain.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Dll_Interface.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomVehicleMonitor.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CustomVehicleMonitor.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Dll_Interface.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{9da9fea9-2304-4318-ad27-41950f10dccc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{18d7b5ca-53b1-432d-99e7-6504a570aef3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{3f2777e3-de31-444a-b973-72f504ff3436}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VehicleMonitorManager.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

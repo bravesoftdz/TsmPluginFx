@@ -1,0 +1,86 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <ProductVersion>3.5</ProductVersion>
+    <RootNamespace>TsmPluginCore</RootNamespace>
+    <ProjectGuid>{da599f74-5bdb-44dc-9382-e26b9675787a}</ProjectGuid>
+    <OutputType>StaticLibrary</OutputType>
+    <AssemblyName>TsmPluginCore</AssemblyName>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <Name>TsmPluginCore</Name>
+    <OutputPath>..\..\Output\$(Configuration)</OutputPath>
+    <Architecture>x86_64</Architecture>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <Optimize>False</Optimize>
+    <OutputPath>..\..\Output\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;</DefineConstants>
+    <GenerateDebugInfo>True</GenerateDebugInfo>
+    <CpuType>x86</CpuType>
+    <Architecture>x86_64</Architecture>
+    <EnableUnmanagedDebugging>False</EnableUnmanagedDebugging>
+    <EnableAsserts>True</EnableAsserts>
+    <AssemblyName>TsmPluginCore</AssemblyName>
+    <XmlDoc>False</XmlDoc>
+    <XmlDocAllMembers>False</XmlDocAllMembers>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>..\..\Output\Release</OutputPath>
+    <CpuType>x86</CpuType>
+    <EnableUnmanagedDebugging>False</EnableUnmanagedDebugging>
+    <AssemblyName>TsmPluginCore</AssemblyName>
+    <XmlDoc>False</XmlDoc>
+    <XmlDocAllMembers>False</XmlDocAllMembers>
+    <Architecture>x86_64</Architecture>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Elements">
+      <HintPath>C:\Program Files (x86)\RemObjects Software\Elements\References\Island\Windows\x86_64\Elements.fx</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="gc" />
+    <Reference Include="Island" />
+    <Reference Include="rtl" />
+    <Reference Include="sqlite3">
+      <HintPath>C:\Program Files (x86)\RemObjects Software\Elements\Island\SDKs\Windows\Windows 10.0.17763.0\x86_64\sqlite3.fx</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CaliperScriptCompiler.pas">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ParameterParser.pas">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TsmPlugin.pas">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DllExports.pas">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ComHelper.pas">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EventSinks.pas">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ParameterEditor.pas">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Exceptions.pas">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TsmApi.pas">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserVehicle.pas">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VehicleMonitorManager.pas">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\RemObjects Software\Elements\RemObjects.Elements.Island.Windows.targets" />
+</Project>
