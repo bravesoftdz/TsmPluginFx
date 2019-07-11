@@ -10,11 +10,13 @@ Source Code
 --------------
 Source codes are written in RemObject Oxygene (Object Pascal) and C/C++.  Oxygene's native Win32 LLVM-based compiler generates highly optimized performant machine code, rendering the plugins computationally efficient during simulation run time.
 
-TsmPluginFramework does not limit the choice of programming language to Object Pascal.  Swift, C# or Java,  any of them can be used to develop TransModeler plugins using TsmPluginFramework, thanks to RemObject's compilers that alow programming these languages interchangably.
+TsmPluginFramework does not limit the choice of programming language to Object Pascal.  
+
+Object Pascal, Swift, C# or Java, any of them can be used to develop TransModeler plugins using TsmPluginFramework, thanks to RemObject's compilers that alow using these programming languages interchangably.
 
 About TransModeler
 --------------
-TransModeler® is registered trademark of Caliper Corporation. It is probably the fastest traffic simulator on Windows Win32 platform, due to its highly optimized C++ programming infrastructure. It features full-fledged and powerful GIS capabilites, extremely detailed modelling realism (visually, and modelling wise), highly optimized transportation network algorithms,  and flexible plugin mechnism not available from other traffic simulators on the market. 
+TransModeler® is registered trademark of Caliper Corporation. It is probably the fastest traffic simulator on Windows Win32 platform, due to its highly optimized C++ programming infrastructure. It features full-fledged and powerful GIS capabilites, extremely detailed modelling realism (visually, and modelling wise), highly optimized transportation network algorithms, and flexible plugin mechnism not available from other traffic simulators on the market. 
 
 A TransModeler license is required in order to use the plugin framework presented herein. For more information about TransModeler visit https://www.caliper.com/transmodeler/default.htm
 
