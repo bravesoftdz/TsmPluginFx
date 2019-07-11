@@ -24,6 +24,7 @@ About RemObject Oxygene
 RemObject Oxygene compiler can be obtained from https://www.elementscompiler.com/elements/default.aspx
 
 
-
-Developed by Wuping Xin, and Copyright KLD © 2019
+License
+-------------
+Developed by Wuping Xin. Copyright KLD © 2019.  MIT License.
 
