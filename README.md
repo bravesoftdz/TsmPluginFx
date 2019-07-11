@@ -14,7 +14,7 @@ TsmPluginFramework does not limit the choice of programming language to Object P
 
 About TransModeler
 --------------
-TransModeler® is registered trademark of Caliper Corporation. It is probably the fastest traffic simulator on Windows Win32 platform, due to its highly optimized underlying infrastructure. It features full-fledged powerful GIS capabilites, extremely detailed modelling realism (visually, and modelling wise),  and flexible plugin mechnism not available from other traffic simulators on the market. 
+TransModeler® is registered trademark of Caliper Corporation. It is probably the fastest traffic simulator on Windows Win32 platform, due to its highly optimized underlying C++ programming infrastructure. It features full-fledged and powerful GIS capabilites, extremely detailed modelling realism (visually, and modelling wise),  and flexible plugin mechnism not available from other traffic simulators on the market. 
 
 A TransModeler license is required in order to use the plugin framework presented herein. For more information about TransModeler visit https://www.caliper.com/transmodeler/default.htm
 
