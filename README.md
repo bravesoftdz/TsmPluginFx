@@ -10,7 +10,7 @@ Source Code
 --------------
 Source codes are written in RemObject Oxygene (Object Pascal) and C/C++.  Oxygene's native Win32 LLVM-based compiler generates highly optimized performant machine code, rendering the plugins computationally efficient during simulation run time.
 
-TsmPluginFramework does not limit the choice of programming language to Object Pascal.  Swift, C# or Java can be used to develop TransModeler plugins using TsmPluginFramework, thanks to RemObject's compilers that alow programming these languages interchangably.
+TsmPluginFramework does not limit the choice of programming language to Object Pascal.  Swift, C# or Java,  any of them can be used to develop TransModeler plugins using TsmPluginFramework, thanks to RemObject's compilers that alow programming these languages interchangably.
 
 About TransModeler
 --------------
