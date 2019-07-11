@@ -25,5 +25,5 @@ RemObject Oxygene compiler can be obtained from https://www.elementscompiler.com
 
 
 
-Developed by Wuping Xin © 2019
+Developed by Wuping Xin, and Copyright KLD © 2019
 
