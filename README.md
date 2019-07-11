@@ -1,4 +1,4 @@
-# TsmPluginFramework - Plugin framework for TransModeler traffic simulator. 
+# TsmPluginFramework - Plugin Framework for TransModeler Traffic Simulator
 
 TsmPluginFramework enables development of TransModeler plugins with integrated scripted GUI, parameter configurations, and user's core business logic - all in a unified workflow.
 
