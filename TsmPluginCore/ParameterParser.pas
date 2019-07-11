@@ -1,4 +1,10 @@
-﻿namespace Tsm.Plugin.Core;
+﻿{/*! 
+     Provides a light weight parser class for TransModeler pml file.  
+
+     \modified    2019-07-03 10:20am
+     \author      Wuping Xin
+  */}
+namespace Tsm.Plugin.Core;
 
 uses 
   RemObjects.Elements.RTL;
@@ -10,13 +16,15 @@ type
       aXmlElement: XmlElement := nil): not nullable sequence of XmlElement;
     begin
       var lXmlElement: XmlElement;
+
       if not assigned(aXmlElement) then
         lXmlElement := Root
       else
         lXmlElement := aXmlElement;
 
-      if lXmlElement.Elements.Count = 0 then
+      if lXmlElement.Elements.Count = 0 then 
         exit(new List<XmlElement>);
+      
       result := lXmlElement.ElementsWithName(aLocalName, aNamespace);
 
       for each el in lXmlElement.Elements do
@@ -41,9 +49,11 @@ type
                 (assigned(p.Attribute['name']) and (p.Attribute['name'].FullName = aName))
               select
                 p;
-      if (lparamItems.Count > 1) then
-         raise new EParameterItemNameNotUniqueException(aName);
-      if (lparamItems.Count = 0) then
+
+      if (lparamItems.Count > 1) then 
+        raise new EParameterItemNameNotUniqueException(aName);
+      
+      if (lparamItems.Count = 0) then 
         result := nil
       else
         result := lparamItems.First;
@@ -52,20 +62,27 @@ type
     method FindPluginParameterItem(const aName: not nullable String): XmlElement;
     begin
       var lparamItem_base, lparamItem_user, lparamItem_proj: XmlElement;
+      
       // Param item must exist in base Pml
       lparamItem_base := FindParameterItem(aName, fBaseParamItems);
+      
       if not assigned(lparamItem_base) then
         raise new EParameterItemMissingException(aName); 
+      
       result := lparamItem_base;
-      // User param item, existing?
+      
       if assigned(fUserParamItems) then begin
         lparamItem_user := FindParameterItem(aName, fUserParamItems);
-        if assigned(lparamItem_user) then result := lparamItem_user;
+        
+        if assigned(lparamItem_user) then 
+          result := lparamItem_user;
       end;
-      // Proj param item, existing?
+    
       if assigned(fProjectParamItems) then begin
         lparamItem_proj := FindParameterItem(aName, fProjectParamItems);
-        if assigned(lparamItem_proj) then result := lparamItem_proj;
+        
+        if assigned(lparamItem_proj) then 
+          result := lparamItem_proj;
       end;
     end;
 
@@ -75,6 +92,7 @@ type
     begin
       fBasePmlDoc := XmlDocument.FromFile(aBasePmlFilePath);
       fPmlValueAttribute := fBasePmlDoc.Root.Attribute['value'];
+      
       // Get the value tag. It could be "value", or "v", or anything.
       if not assigned(fPmlValueAttribute) then
         fPmlValueTag := 'value'
@@ -103,14 +121,17 @@ type
     method TableItem(const aName: not nullable String; aColumn, aRow: UInt32): String;
     begin
       var lparamItem: XmlElement := FindPluginParameterItem(aName);
+      
       if lparamItem.Attribute['type'].Value <> 'table' then
         raise new EInvalidParameterItemTypeException(aName, lparamItem.Attribute['type'].Value);
+      
       var lCell := lparamItem.ElementsWithName('rows')
-                    .First  // There should always be one and only one rows element.
+                    .First  // Always one and only one element named "rows".
                     .ElementsWithName('row')
                     .ToArray[aRow]
                     .ElementsWithName(fPmlValueTag)
                     .ToArray[aColumn];
+      
       result := lCell.Value;
     end;
   end;

@@ -1,22 +1,8 @@
-﻿{/*!
-     \brief
-        Defines various simulation events and the signatures of event handlers in
-        terms of the following groups:
-           - Simulation Events
-           - Sensor Events
-           - Vehicle Events
-           - Signal Events
+﻿{/*! 
+     Provides definition of various event types and event handlers for 
+     simulation, sensor, vehicle and signal events.
 
-        Each group of events is encapsulated in respective event sink class:
-           - TsmSimulationEventSink (implements ITsmSimulationEventSink interface)
-           - TsmSensorEventSink (implements ITsmSensorEventSink interface)
-           - TsmVehicleEventSink (implements ITsmVehicleEventSink interface)
-           - TsmSignalEventSink (implements ITsmSignalEventSink interface)
-
-        And ultimately, a TsmEventSinkManager is provided which implements ITsmEventSinkManager
-        interface to facilitate managing multiple event sinks at a single location.
-
-     \modified    2019-07-02 10:27am
+     \modified    2019-07-09 14:42am
      \author      Wuping Xin
   */}
 namespace Tsm.Plugin.Core;
@@ -29,86 +15,68 @@ type
 // Simulation Events
 //---------------------------------------------
 
-{/*!
-     \brief  Occurs when a simulation project is opened.
+{/*! 
+     Occurs when a simulation project is opened.
+     
      \param  aProjectFileName  Full path of the .smp project.
   */}
   ProjectOpenedEventHandler
-    = public block (
-        const aProjectFileName: OleString
-    );
+    = public block (const aProjectFileName: OleString);
 
-{/*!
-     \brief  Occurs when a simulation run is being started.
+{/*! 
+     Occurs when a simulation run is being started.
+     
      \param  aRunSeqID Current iteration ID.
      \param  aRunType  Tpe of the run.
      \param  Whether in a preload or actual simulation stage.
   */}
   SimulationStartingEventHandler
-    = public block (
-        aRunSeqID: Int16;
-        aRunType: TsmRunType;
-        aIsInPreload: VARIANT_BOOL
-    );
+    = public block (aRunSeqID: Int16; aRunType: TsmRunType; aIsInPreload: VARIANT_BOOL);
 
-{/*!
-     \brief
-        Occurs when a simulation run has all internal modules initialized,
-        and simulation clock is about to start ticking.
+{/*! 
+     Occurs when a simulation run has all internal modules initialized,
+     and simulation clock is about to start ticking.
   */}
   SimulationStartedEventHandler
     = public block;
 
-{/*!
-     \brief  Occurs when simulation clock time is being advanced.
+{/*! 
+     Occurs when simulation clock time is being advanced.
 
      \param  aTime     Current simulation time in seconds past midnight.
      \param  aNextTime Next scheduled call back time for advancing event.
   */}
   SimulationAdvanceEventHandler
-    = public block (
-        aTime: Double;
-        out aNextTime: Double
-    );
+    = public block (aTime: Double; out aNextTime: Double);
 
-{/*!
-     \brief
-        Occurs when a simulation run is completed, yet before all internal modules begin to
-        post-process the simulation outputs.
+{/*! 
+     Occurs when a simulation run is completed, yet before all internal modules begin to
+     post-process the simulation outputs.
 
      \param  aState
         Simulation state indicating whether a simulation finishes successfully,
         canceled by the user, or aborted due to runtime error.
   */}
   SimulationStoppedEventHandler
-    = public block (
-        aState: TsmState
-    );
+    = public block (aState: TsmState);
 
-
-{/*!
-     \brief
-        Occurs when a simulation run has finished with all post
-        processing of the simulation output done.
+{/*! 
+     Occurs when a simulation run has finished with all post processing
+     of the simulation output done.
 
      \param  aState  Simulation state.
   */}
   SimulationEndedEvent
-    = public block (
-        aState: TsmState
-    );
+    = public block (aState: TsmState);
 
-{/*!
-     \brief
-        Occurs when a simulation project is being closed. This is where project-specific
-        cleaning up can be performed.
+{/*! 
+     Occurs when a simulation project is being closed. This is where project-specific
+     cleaning up can be performed.
   */}
   ProjectClosedEventHandler
     = public block;
 
-{/*!
-     \brief  Occurs when TransModeler is shutting down.
-  */}
+{/*! Occurs when TransModeler is shutting down. */}
   TsmApplicationShutdownEventHandler
     = public block;
 
@@ -117,8 +85,8 @@ type
 // Sensor Events
 //---------------------------------------------
 
-{/*!
-     \brief  Occurs when a vehicle activates the sensor.
+{/*! 
+     Occurs when a vehicle activates the sensor.
 
      \param  aSensorID     Sensor ID.
      \param  aVehicleID    Vehicle ID.
@@ -126,34 +94,25 @@ type
      \param  aSpeed        Vehicle speed.
  */}
   VehicleEnterEventHandler
-    = public block (
-        aSensorID: Integer;
-        aVehicleID: Integer;
-        aActivateTime: Double;
-        aSpeed: Single
-    );
+    = public block (aSensorID: Integer; aVehicleID: Integer; aActivateTime: Double; aSpeed: Single);
 
-{/*!
-     \brief  Occurs when a vehicle deactivates the sensor.
+{/*! 
+     Occurs when a vehicle deactivates the sensor.
+
      \param  aSensorID     Sensor ID.
      \param  aVehicleID    Vehicle ID.
      \param  aActivateTime The time when vehicle rear bumper crossing the downstream edge of the sensor.
      \param  aSpeed        Vehicle speed.
  */}
   VehicleLeaveEventHandler
-    = public block (
-        aSensorID: Integer;
-        aVehicleID: Integer;
-        aDeactivateTime: Double;
-        aSpeed: Single
-    );
+    = public block (aSensorID: Integer; aVehicleID: Integer; aDeactivateTime: Double; aSpeed: Single);
 
 //---------------------------------------------
 // Signal Events
 //---------------------------------------------
 
-{/*!
-     \brief  Occurs when a new signal plan is started.
+{/*! 
+     Occurs when a new signal plan is started.
 
      \param  aCookie
          Unique ID identifying the signal control plan.
@@ -164,132 +123,101 @@ type
          A list of IDs of controlled features such as nodes, signals, or lanes.
   */}
   SignalPlanStartedEventHandler
-    = public block (
-        aCookie: Integer;
-        aControllClass: TsmControlClass;
-        aIDs: VARIANT
-    );
+    = public block (aCookie: Integer; aControllClass: TsmControlClass; aIDs: VARIANT);
 
-{/*!
-     \brief  Occurs when a signal plan is ended.
+{/*! 
+     Occurs when a signal plan is ended.
+     
      \param  aCookie Cookie ID of the signal plan.
   */}
   SignalPlanEndedEventHandler
-    = public block (
-        aCookie: Integer
-    );
+    = public block (aCookie: Integer);
 
-{/*!
-     \brief  Occurs when HOT faires are set to initial values for the given entrance.
+{/*! 
+     Occurs when HOT faires are set to initial values for the given entrance.
+     
      \param  aEntranceID Entrance ID.
   */}
   HotFaresInitializedEventHandler
-    = public block (
-        aEntranceID: Integer
-    );
+    = public block (aEntranceID: Integer);
 
-{/*!
-     \brief  Occurs when HOT faires are released for the given entrance.
+{/*! 
+     Occurs when HOT faires are released for the given entrance.
+     
      \param  aEntranceID Entrance ID.
   */}
   HotFaresReleasedEvent
-    = public block (
-        aEntranceID: Integer
-    );
+    = public block (aEntranceID: Integer);
 
-{/*!
-     \brief  Occurs when signal state is changed.
+{/*! 
+     Occurs when signal state is changed.
+     
      \remark ITsmSignal::IsNotifyingEvents must have been set to true in order the for the event to be fired.
   */}
   SignalStateChangedEventHandler
-    = public block (
-        aSignalID: Integer;
-        aTime: Double;
-        aState: TsmSignalState
-    );
+    = public block (aSignalID: Integer; aTime: Double; aState: TsmSignalState);
 
 
 //---------------------------------------------
 // Vehicle Events
 //---------------------------------------------
 
-{/*!
-     \brief  Occurs when a vehicle departs its origin.
-  */}
+{/*! Occurs when a vehicle departs its origin. */}
   DepartedEventHandler
-    = public block (
-        aVehicleID: Integer;
-        aTime: Double
-    );
+    = public block (aVehicleID: Integer; aTime: Double);
 
-{/*!
-     \brief  Occurs when a vehicle parks into parking space at its destination.
-     \remard This event occurs before the Arrival event is fired.
+{/*! 
+     Occurs when a vehicle parks into parking space at its destination.
+     
+     \remark This event occurs before the Arrival event is fired.
   */}
   ParkedEventHandler
-    = public block (
-        aVehicleID: Integer;
-        aTime: Double
-    );
+    = public block (aVehicleID: Integer; aTime: Double);
 
-{/*!
-     \brief  Occurs when a vehicle is stalled or released.
+{/*! 
+     Occurs when a vehicle is stalled or released.
+     
      \param  aTime     Time of the event.
      \param  aStalled  Whether the vehicle is stalled (true), or released(false).
   */}
   StalledEventHandler
-    = public block (
-        aVehicleID: Integer;
-        aTime: Double;
-        aStalled: VARIANT_BOOL
-    );
+    = public block (aVehicleID: Integer; aTime: Double; aStalled: VARIANT_BOOL);
 
-{/*!
-     \brief  Occurs when a vehicle arrives at its destination.
+{/*! 
+     Occurs when a vehicle arrives at its destination.
+     
      \param  aVehicleID  ID of the vehicle.
      \param  aTime       The time when the vehicle arrives at its destination.
   */}
   ArrivedEventHandler
-    = public block (
-        aVehicleID: Integer;
-        aTime: Double
-    );
+    = public block (aVehicleID: Integer; aTime: Double);
 
-{/*!
-     \brief  Occurs when a vehicle enters a new lane.
+{/*! 
+     Occurs when a vehicle enters a new lane.
+     
      \remark ITsmVehicle::Tracking must have been set to true in order for the event to be fired.
   */}
   EnterLaneEventHandler
-    = public block (
-        const aVehicle: ITsmVehicle;
-        aLaneID: Integer;
-        aLaneEntryTime: Double
-    );
+    = public block (const aVehicle: ITsmVehicle; aLaneID: Integer; aLaneEntryTime: Double);
 
-{/*!
-     \brief  Occurs when a vehicle enters a new segment.
+{/*! 
+     Occurs when a vehicle enters a new segment.
+     
      \remark ITsmVehicle::Tracking must have been set to true in order for the event to be fired.
   */}
   EnterSegmentEventHandler
-    = public block (
-        const aVehicle: ITsmVehicle;
-        aSegmentID: Integer;
-        aSegmentEntryTime: Double
-    );
+    = public block (const aVehicle: ITsmVehicle; aSegmentID: Integer; aSegmentEntryTime: Double);
 
-{/*!
-     \brief  Occurs when a vehicle enters a new link.
+{/*! 
+     Occurs when a vehicle enters a new link.
+     
      \remark ITsmVehicle::Tracking must have been set to true in order for the event to be fired.
   */}
   EnterLinkEventHandler
-    = public block (
-        const aVehicle: ITsmVehicle;
-        aLinkID: Integer;
-        aLinkEntryTime: Double
-    );
+    = public block (const aVehicle: ITsmVehicle; aLinkID: Integer; aLinkEntryTime: Double);
 
-{/*!
-     \brief  Occurs when a vehicle changes its path en-route.
+{/*! 
+     Occurs when a vehicle changes its path en-route.
 
      \param  aVehicle
          The subject vehicle changing path.
@@ -307,15 +235,10 @@ type
      \remark ITsmVehicle::Tracking must have been set to true in order for the event to be fired.
   */}
   PathChangedEventHandler
-    = public block (
-        const aVehicle: ITsmVehicle;
-        aPathID: Integer;
-        aPosition: Integer;
-        aTime: Double
-    );
+    = public block (const aVehicle: ITsmVehicle; aPathID: Integer; aPosition: Integer; aTime: Double);
 
-{/*!
-     \brief  Occurs when a transit vehicle enters route stop.
+{/*! 
+     Occurs when a transit vehicle enters route stop.
 
      \param  aTime          Current lock time.
      \param  aVehicle       A ITsmVehicle reference.
@@ -327,81 +250,53 @@ type
      \param  aSwellTime     A user computed dwell time for TransModeler to implement.
   */}
   EnterTransitStopEventHandler
-    = public block (
-        aTime: Double;
-        const aVehicle: ITsmVehicle;
-        const aRoute: ITsmRoute;
-        const aStop: ITsmStop;
-        aMaxCapacity: Int16;
-        aPassengers: Int16;
-        aDelay: Single;
-        aDefaultDwellTime: Single;
-        out aDwellTime: Single
-    );
+    = public block (aTime: Double; const aVehicle: ITsmVehicle; const aRoute: ITsmRoute; 
+        const aStop: ITsmStop; aMaxCapacity: Int16; aPassengers: Int16; aDelay: Single; 
+        aDefaultDwellTime: Single; out aDwellTime: Single);
 
-{/*!
-     \brief  Occurs periodically to provide Automated Vehicle Location (AVL) update.
+{/*! 
+     Occurs periodically to provide Automated Vehicle Location (AVL) update.
 
      \param  aPremptionTypeIndex  A 1-based index or 0 if no preemption.
      \remark ITsmVehicle::Tracking must have been set to true in order for the event to be fired.
   */}
   AvlUpdateEventHandler
-    = public block (
-        const aVehicle: ITsmVehicle;
-        aVehicleClassIndex: Int16;
-        aOccupancy: Int16;
-        aPremptionTypeIndex: Int16;
-        var aCoordinate: STsmCoord3
-    );
+    = public block (const aVehicle: ITsmVehicle; aVehicleClassIndex: Int16; aOccupancy: Int16;
+        aPremptionTypeIndex: Int16; var aCoordinate: STsmCoord3);
 
-{/*!
-     \brief
-        This event provides an alternative cost of a link when computing the
-        shortest path or evaluating the cost for a predefined path. The value
-        returned by this function is added to the current cost of the link,
-        which is either travel time or generalized cost, depending on the project
-        setting for vehicle routing.
+{/*! 
+     This event provides an alternative cost of a link when computing the
+     shortest path or evaluating the cost for a predefined path. The value
+     returned by this function is added to the current cost of the link,
+     which is either travel time or generalized cost, depending on the project
+     setting for vehicle routing.
 
      \remark
         ITsmApplication::EnableLinkCostCallback must have been set to true
         in order for the event to be fired.
   */}
   CalculateLinkCostEventHandler
-    = public block (
-        aVehicleClassIndex: Int16;
-        aOccupancy: Int16;
-        aDriverGroupIndex: Int16;
-        aVehicleType: TsmVehicleType;
-        aLinkEntryTime: Double;
-        const aFromLink: ITsmLink;
-        const aLink: ITsmLink;
-        var aValue: Single
+    = public block (aVehicleClassIndex: Int16; aOccupancy: Int16; aDriverGroupIndex: Int16;
+        aVehicleType: TsmVehicleType; aLinkEntryTime: Double; const aFromLink: ITsmLink;
+        const aLink: ITsmLink; var aValue: Single
     );
 
-{/*!
-     \brief  Occurs when the value of the user defined field is retrieved.
+{/*! 
+     Occurs when the value of the user defined field is retrieved.
 
      \remark
          ITsmApplication::CreateUserVehicleProperty must have been called successfully
          to have the field registered in order for the event to be fired.
   */}
   GetPropertyValueEventHandler
-    = public block (
-        const aVehicle: ITsmVehicle;
-        aColumnIndex: Int16;
-        out aValue: VARIANT
-    );
+    = public block (const aVehicle: ITsmVehicle; aColumnIndex: Int16; out aValue: VARIANT);
 
-{/*!
-     \brief  Occurs when the value of the user-defined field is edited.
+{/*! 
+     Occurs when the value of the user-defined field is edited.
      \remark The field must have been registered as editable in order for the event to be fired.
   */}
   SetPropertyValueEventHandler
-    = public block (
-        const aVehicle: ITsmVehicle;
-        aColumnIndex: Int16;
-        aValue: VARIANT
-    );
+    = public block (const aVehicle: ITsmVehicle; aColumnIndex: Int16; aValue: VARIANT);
 
   [COM, Guid('{80B67AD2-79A3-4FE7-833C-AF83947B6AF8}')]
   ITsmEventSink = public interface(IUnknown)
@@ -816,7 +711,7 @@ type
     All
   );
 
-  TsmEventSinkTypes = set of TsmEventSinkType;
+  TsmEventSinkTypes = public set of TsmEventSinkType;
 
   [COM, Guid('{5CB6D9ED-80C5-4612-9D4B-FE36A6B3B1E3}')]
   ITsmEventSinkManager = public interface(IUnknown)
@@ -867,13 +762,21 @@ type
     constructor(aTsmApp: ITsmApplication);
     begin
       fEventSinkMap := new Dictionary<TsmEventSinkType, ITsmEventSink>;
-      fEventSinkMap.Add(TsmEventSinkType.Simulation,
-        new TsmSimulationEventSink(aTsmApp));
-      fEventSinkMap.Add(TsmEventSinkType.Signal,
-        new TsmSignalEventSink(aTsmApp));
-      fEventSinkMap.Add(TsmEventSinkType.Sensor,
+      
+      fEventSinkMap.Add(
+        TsmEventSinkType.Sensor,
         new TsmSensorEventSink(aTsmApp));
-      fEventSinkMap.Add(TsmEventSinkType.Vehicle,
+      
+      fEventSinkMap.Add(
+        TsmEventSinkType.Simulation,
+        new TsmSimulationEventSink(aTsmApp));
+      
+      fEventSinkMap.Add(
+        TsmEventSinkType.Signal,
+        new TsmSignalEventSink(aTsmApp));
+      
+      fEventSinkMap.Add(
+        TsmEventSinkType.Vehicle,
         new TsmVehicleEventSink(aTsmApp));
     end;
   end;

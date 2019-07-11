@@ -1,9 +1,5 @@
-﻿{/*!
-     \brief
-        TransModeler parameter editor COM interface header file. Manually converted from
-        TransModeler® parameter editor type library (pme.dll).
-
-        Parameter and field names may be adjusted for better readability.
+﻿{/*! 
+     Provides COM interface to TransModeler's parameter editor.  
 
      \modified    2019-07-03 10:20am
      \author      Wuping Xin
@@ -25,9 +21,7 @@ const
 
 type
   {/*!
-       \brief
-       	  TransModeler project parameters may be stored in three seperate pml files:
-
+       TransModeler project parameters may be stored in three seperate pml files:
        	  - Base pml file
        	       A mandatory file that defines default values and layout of all the parameters.
        	  - Secondary pml file
@@ -37,7 +31,7 @@ type
                An optional file that only saves values differing from the secondardary file.
                This file can be used to save project-specific parameter values.
 
-          A filter can be applied - it uses item lables to locate items.
+        A filter can be applied - it uses item lables to locate items.
     */}
   [COM, Guid(IID_IParametermEditor)]
   IParameterEditor = public interface(IDispatch)

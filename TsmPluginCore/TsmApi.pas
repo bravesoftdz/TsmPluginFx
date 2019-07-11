@@ -1,9 +1,5 @@
-﻿{/*!
-     \brief
-        TsmApi COM interface header file. Manually converted from TransModeler®
-        type library.
-
-        Parameter and field names may be adjusted for better readability.
+﻿{/*! 
+     Provides COM interface of TransModeler's TsmApi.  
         
      \modified    2019-07-01 16:00pm
      \author      Wuping Xin
@@ -117,7 +113,7 @@ const
  CLASS_TsmStops         : String = '{89014D44-723F-491D-83CC-52F87C8B13C9}';
 
 type
-  TsmRunType = type UInt32;
+  TsmRunType = public UInt32;
 const
   RUNTYPE_PLAYBACK               = $00000000;
   RUNTYPE_EMULATION              = $00000001;
@@ -127,7 +123,7 @@ const
   RUNTYPE_CALIBRATION            = $00000005;
 
 type
-  TsmState = type UInt32;
+  TsmState = public UInt32;
 const
   STATE_ERROR                    = $FFFFFFFC;
   STATE_CANCELED                 = $FFFFFFFD;
@@ -139,7 +135,7 @@ const
   STATE_UNKNOWN                  = $00000063;
 
 type
-  TsmControlClass = type UInt32;
+  TsmControlClass = public UInt32;
 const
   UNKNOWN_CONTROL                = $FFFFFFF7;
   SIGNAL_CONTROL                 = $00000000;
@@ -147,14 +143,14 @@ const
   LANEACCESS_CONTROL             = $00000002;
 
 type
-  TsmHotState = type UInt32;
+  TsmHotState = public UInt32;
 const
   HOT_NONE                       = $00000000;
   HOT_YES                        = $00000001;
   HOT_ON                         = $00000002;
 
 type
-  TsmLocationType = type UInt32;
+  TsmLocationType = public UInt32;
 const
   LOCATION_NONE                  = $00000000;
   LOCATION_NODE                  = $00000001;
@@ -162,7 +158,7 @@ const
   LOCATION_CENTROID              = $00000003;
 
 type
-  TsmFidelity = type UInt32;
+  TsmFidelity = public UInt32;
 const
   FIDELITY_NONE                  = $00000000;
   FIDELITY_MICRO                 = $00000001;
@@ -170,7 +166,7 @@ const
   FIDELITY_MACRO                 = $00000003;
 
 type
-  TsmDirection = type UInt32;
+  TsmDirection = public UInt32;
 const
   TSM_EAST                       = $00000000;
   TSM_SOUTH                      = $00000001;
@@ -182,7 +178,7 @@ const
   TSM_NORTHEAST                  = $00000007;
 
 type
-  TsmTurn = type UInt32;
+  TsmTurn = public UInt32;
 const
   TURN_ULEFT                     = $00000000;
   TURN_LEFT                      = $00000001;
@@ -193,7 +189,7 @@ const
   TURN_URIGHT                    = $00000006;
 
 type
-  TsmConnectorType = type UInt32;
+  TsmConnectorType = public UInt32;
 const
   CONNECTOR_ALL                  = $00000000;
   CONNECTOR_MERGE                = $00000001;
@@ -201,7 +197,7 @@ const
   CONNECTOR_PARALLEL             = $00000003;
 
 type
-  TsmReversible = type UInt32;
+  TsmReversible = public UInt32;
 const
   NEITHER_DIRECTION              = $00000000;
   AB_DIRECTION                   = $00000001;
@@ -209,7 +205,7 @@ const
   SHARED                         = $00000003;
 
 type
-  TsmSide = type UInt32;
+  TsmSide = public UInt32;
 const
   NEITHER_SIDE                   = $00000000;
   RIGHT_SIDE                     = $00000001;
@@ -217,7 +213,7 @@ const
   BOTH_SIDES                     = $00000003;
 
 type
-  TsmAuxiliary = type UInt32;
+  TsmAuxiliary = public UInt32;
 const
   AUX_NONE                       = $00000000;
   AUX_ACC                        = $00000001;
@@ -225,21 +221,21 @@ const
   AUX_BOTH                       = $00000003;
 
 type
-  TsmHOV = type UInt32;
+  TsmHOV = public UInt32;
 const
   SOV                            = $00000001;
   HOV2                           = $00000002;
   HOV3                           = $00000003;
 
 type
-  TsmAccess = type UInt32;
+  TsmAccess = public UInt32;
 const
   ACCESS_ALLOWED                 = $00000000;
   ACCESS_PROHIBITED              = $00000001;
   ACCESS_RESERVED                = $00000002;
 
 type
-  TsmVALevel = type UInt32;
+  TsmVALevel = public UInt32;
 const
   VALEVEL_NONE                   = $00000000;
   VALEVEL_ACCELERATION           = $0000001A;
@@ -250,14 +246,14 @@ const
   VAEVELL_FULL                   = $00000050;
 
 type
-  TsmDetectionType = type UInt32;
+  TsmDetectionType = public UInt32;
 const
  NONE_TYPE                       = $00000000;
  PRESENCE_TYPE                   = $00000001;
  PULSE_TYPE                      = $00000002;
 
 type
-  TsmSignalState = type UInt32;
+  TsmSignalState = public UInt32;
 const
   BLANK_SIGNAL                   = $00000000;
   RED_SIGNAL                     = $00000001;
@@ -274,7 +270,7 @@ const
   NONTRANSIT_PROTECTED_SIGNAL    = $0000000F;
 
 type
-  TsmVP = type UInt32;
+  TsmVP = public UInt32;
 const
   VP_COORD                       = $00000000;
   VP_HEADING                     = $00000001;
@@ -282,7 +278,7 @@ const
   VP_ALL                         = $00000003;
 
 type
-  TsmTripType = type UInt32;
+  TsmTripType = public UInt32;
 const
   TT_REGULAR                     = $00000000;
   TT_ACCESS                      = $00000001;
@@ -290,7 +286,7 @@ const
   TT_CLOSING                     = $00000003;
 
 type
-  TsmControllerType = type UInt32;
+  TsmControllerType = public UInt32;
 const
   CONTROLLER_UNKNOWN             = $FFFFFFF7;
   CONTROLLER_METERING            = $FFFFFFFF;
@@ -301,7 +297,7 @@ const
   CONTROLLER_OTHER               = $00000004;
 
 type
-  TsmPhaseState = type UInt32;
+  TsmPhaseState = public UInt32;
 const
   PHASE_IDLE                     = $00000000;
   PHASE_RED                      = $00000001;
@@ -309,7 +305,7 @@ const
   PHASE_GREEN                    = $00000003;
 
 type
-  TsmStageState = type UInt32;
+  TsmStageState = public UInt32;
 const
   STAGE_SERVED                   = $FFFFFFFF;
   STAGE_NONE                     = $00000000;
@@ -318,13 +314,13 @@ const
   STAGE_GREEN                    = $00000003;
 
 type
-  TsmSectionType = type UInt32;
+  TsmSectionType = public UInt32;
 const
   ZONE_TOLL                      = $00000001;
   OD_TOLL                        = $00000002;
 
 type
-  TsmFareType = type UInt32;
+  TsmFareType = public UInt32;
 const
   FARE_NONE                      = $00000000;
   FARE_FIXED                     = $00000001;
@@ -333,21 +329,21 @@ const
   FARE_USER                      = $00000004;
 
 type
-  TsmAngleType = type UInt32;
+  TsmAngleType = public UInt32;
 const
   AZIMUTH                        = $00000000;
   CARTESIAN                      = $00000001;
   RADIAN                         = $00000002;
 
 type
-  TsmPreload = type UInt32;
+  TsmPreload = public UInt32;
 const
   PRELOAD_DONE                   = $FFFFFFFF;
   PRELOAD_OFF                    = $00000000;
   PRELOAD_ON                     = $00000001;
 
 type
-  TsmVehicleType = type UInt32;
+  TsmVehicleType = public UInt32;
 const
   VT_ETC                         = $00000200;
   VT_HOV                         = $00000800;
@@ -361,7 +357,7 @@ const
   VT_ALL                         = $0D0AAA00;
 
 type
-  TsmTripState = type UInt32;
+  TsmTripState = public UInt32;
 const
   TRIPSTATE_PRETRIP              = $00000000;
   TRIPSTATE_UNSERVED             = $00000001;

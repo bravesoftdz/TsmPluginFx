@@ -1,12 +1,17 @@
-﻿namespace Tsm.Plugin.Core;
+﻿{/*! 
+     Provides exception classes for different situations.
+
+     \modified    2019-07-09 14:30pm
+     \author      Wuping Xin
+  */}
+namespace Tsm.Plugin.Core;
 
 type
   EDllModuleLoadingException = public class(Exception)  
   public
     constructor(const aModuleName: not nullable String; const aError: not nullable String);
     begin
-      inherited(String.Format('Module ''{0}'' failed to be loaded with error: {1}.', 
-        [aModuleName, aError]));
+      inherited($"Module {aModuleName} failed to be loaded with error: {aError}.");
     end;
   end;
 
@@ -27,7 +32,7 @@ type
   public
     constructor(const aItemName: not nullable String);
     begin
-      inherited(String.Format('Parameter item name ''{0}'' is not unique.', [aItemName]));
+      inherited($"Parameter item name {aItemName} is not unique.");
     end;
   end;
 
@@ -35,7 +40,7 @@ type
   public
     constructor(const aItemName: not nullable String);
     begin
-      inherited(String.Format('Parameter item with name ''{0}'' is missing.', [aItemName]));
+      inherited($"Parameter item with name {aItemName} is missing.");
     end;
   end;
 
@@ -43,7 +48,7 @@ type
   public
     constructor(const aItemName: not nullable String; const aItemType: not nullable String);
     begin
-      inherited(String.Format('Parameter item ''{0}'' has invalid type ''{1}''.', [aItemName, aItemType]));
+      inherited($"Parameter item {aItemName} has invalid type {aItemType}.");
     end;
   end;
 

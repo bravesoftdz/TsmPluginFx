@@ -1,62 +1,68 @@
-﻿namespace Tsm.Plugin.Core;
+﻿{/*! 
+     Provides interface and base class for user vehicle factory.
+     
+     \modified    2019-07-09 13:45pm
+     \author      Wuping Xin
+  */}
+namespace Tsm.Plugin.Core;
 
 uses
   rtl;
 
 type
   VehicleMonitorOption = public flags (   
-      None                 = $00000000,
-      Update               = $00000001,
-      Position             = $00000002,
-      CarFollowingSubject  = $00000010,
-      CarFollowingLeader   = $00000020,
+      None = $00000000,
+      Update = $00000001,
+      Position = $00000002,
+      CarFollowingSubject = $00000010,
+      CarFollowingLeader = $00000020,
       CarFollowingFollower = $00000040,
-      CarFollowingAll      = $00000070,
-      All                  = $0000000F
+      CarFollowingAll = $00000070,
+      All = $0000000F
   ) of UInt32;
 
-  VehicleMonitorTripType = public enum (
-      Regular              = $00,
-      Access               = $01,
-      Business             = $02,
-      Closing              = $03
+  TripType = public enum (
+      Regular = $00,
+      Access = $01,
+      Business = $02,
+      Closing = $03
   ) of Byte;
 
-  VehicleMonitorSignalState = public enum (
-      Blank                = $00,
-      Red                  = $01,
-      Yellow               = $02,
-      Green                = $03,
-      Free                 = $04,
-      RTOR                 = $05,
-      ProtectedSignal      = $07,
-      TransitProtected     = $08,
-      FlashingRed          = $09,
-      FlashingYellow       = $0A,
-      NonTransitPermitted  = $0B,
-      Blocked              = $0C,
-      NonTransitProtected  = $0F
+  SignalState = public enum (
+      Blank = $00,
+      Red = $01,
+      Yellow = $02,
+      Green = $03,
+      Free = $04,
+      RTOR = $05,
+      ProtectedSignal = $07,
+      TransitProtected = $08,
+      FlashingRed = $09,
+      FlashingYellow = $0A,
+      NonTransitPermitted = $0B,
+      Blocked = $0C,
+      NonTransitProtected = $0F
   ) of Byte;
 
-  VehicleMonitorVaLevel = public enum (
-      L0_NoAutomation              = $00,
-      L1A_DriverAssistedAccelDecel = $1A,
-      L1A_DriverAssistedSteering   = $1B,
-      L2_PartialAutomation         = $20,
-      L3_ConditionalAutomation     = $30,
-      L4_HighAutomation            = $40,
-      L5_FullAutomation            = $50
+  AutomationLevel = public enum (
+      L0_None = $00,
+      L1A_AssistedAccelDecel = $1A,
+      L1A_AssistedSteering = $1B,
+      L2_Partial = $20,
+      L3_Conditional = $30,
+      L4_High = $40,
+      L5_Full = $50
   ) of Byte;
 
   VehicleProperty = public record
   public
-    VehicleClass: Int16;         // 1-based index to vehicle class
+    VehicleClass: Int16;  // 1-based index to vehicle class
     Occupancts: Int16;
     Length: Single;
     Width: Single;
     PreviousTripID: Int32;
-    TripType: VehicleMonitorTripType;       // Byte
-    AutomationLevel: VehicleMonitorVaLevel; // Byte
+    Trip: TripType;
+    Automation: AutomationLevel;
     Parked: Boolean;
   end;
 
@@ -65,7 +71,7 @@ type
     SegmentID: Int32;
     Grade: Single;
     Speed: Single;
-    Acceleration: Single;
+    Accel: Single;
   end;
 
   TransitStopInfo = public record
@@ -96,11 +102,11 @@ type
     MaxAccel: Single;
     MaxDecel: Single;
     NormalDecel: Single;
-    DistanceToStop: Single;    // Distance to the stop position in meters
-    StoppedGap: Single;        // Minimum gap distance at stopped position
-    DistanceFromMLC:  Single;  // Distance from mandatory lane change.
-    LaneChanges: SByte;        // Number of lane changes needed in order to to stay on path.
-    SignalState: VehicleMonitorSignalState;
+    DistanceToStop: Single;
+    StoppedGap: Single;        
+    DistanceFromMLC:  Single;
+    LaneChanges: SByte;
+    Signal: SignalState;
     Grade: Single;
     GapDistance: Single;
     Leader: ^CarFollowingData;
@@ -108,65 +114,31 @@ type
   end;
 
   [CallingConvention(CallingConvention.FastCall)]
-  DepartureMethodType = public method(
-    aSelf: PUserVehicle; 
-    aTime: Double
-  );
+  DepartureMethodType = public method(aSelf: ^UserVehicle; aTime: Double);
 
   [CallingConvention(CallingConvention.FastCall)]
-  ParkedMethodType = public method(
-    aSelf: PUserVehicle; 
-    aTime: Double
-  );
+  ParkedMethodType = public method(aSelf: ^UserVehicle; aTime: Double);
 
   [CallingConvention(CallingConvention.FastCall)]
-  StalledMethodType = public method(
-    aSelf: PUserVehicle; 
-    aTime: Double; 
-    aStalled: Boolean
-   );
+  StalledMethodType = public method(aSelf: ^UserVehicle; aTime: Double; aStalled: Boolean);
 
   [CallingConvention(CallingConvention.FastCall)]
-  ArrivalMethodType = public method(
-    aSelf: PUserVehicle; 
-    aTime: Double
-  );
+  ArrivalMethodType = public method(aSelf: ^UserVehicle; aTime: Double);
 
   [CallingConvention(CallingConvention.FastCall)]
-  UpdateMethodType = public method(
-    aSelf: PUserVehicle; 
-    aTime: Double; 
-    const var aState: VehicleBasicState
-  );
+  UpdateMethodType = public method(aSelf: ^UserVehicle; aTime: Double; aState: ^VehicleBasicState);
 
   [CallingConvention(CallingConvention.FastCall)]
-  CarFollowingMethodType = public method(
-    aSelf: PUserVehicle; 
-    aTime: Double;
-    const var aData: CarFollowingData; 
-    aTsmProposedAccelRate: Single
-  ): Single;
+  CarFollowingMethodType = public method(aSelf: ^UserVehicle; aTime: Double; aData: ^CarFollowingData; aTsmProposedAccelRate: Single): Single;
 
   [CallingConvention(CallingConvention.FastCall)]
-  TransitStopMethodType = public method(
-    aSelf: PUserVehicle; 
-    aTime: Double;
-    const var aInfo: TransitStopInfo; 
-    aDwellTime: Single
-  ): Single;
+  TransitStopMethodType = public method(aSelf: ^UserVehicle; aTime: Double; aTransitStopInfo: ^TransitStopInfo; aDwellTime: Single): Single;
 
   [CallingConvention(CallingConvention.FastCall)]
-  PositionMethodType = public method(
-    aSelf: PUserVehicle; 
-    aTime: Double; 
-    const var aPosition: VehiclePosition
-  );
+  PositionMethodType = public method(aSelf: ^UserVehicle; aTime: Double; aPosition: ^VehiclePosition);
 
   [CallingConvention(CallingConvention.FastCall)]
-  AttachVehicleFailMethodType = public method(
-    aSelf: PUserVehicle; 
-    aMessage: OleString
-  ): Boolean;
+  AttachVehicleFailMethodType = public method(aSelf: ^UserVehicle; aMessage: OleString): Boolean;
 
   UserVehicleMethodTable = public record
   public
@@ -180,61 +152,56 @@ type
     PositionMethod: PositionMethodType;
     AttachVehicleFailMethod: AttachVehicleFailMethodType;
   end;
-  PUserVehicleMethodTable = ^UserVehicleMethodTable;
 
   UserVehicle = public record
   public
-    MT: PUserVehicleMethodTable;
+    MT: ^UserVehicleMethodTable;
     Data: Object;
   end;
-  PUserVehicle = ^UserVehicle;
 
   IUserVehicleFactory = public interface
-    method CreateUserVehicle(aID: LongInt; const var aProperty: VehicleProperty; aFlags: ^VehicleMonitorOption): PUserVehicle;
+    method CreateUserVehicle(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): ^UserVehicle;
   end;
 
   UserVehicleCreatedEventHandler
-    = public block(aID: LongInt; aFlags: ^VehicleMonitorOption; aVehicle: PUserVehicle);
+    = public block(aID: LongInt; aVehicle: ^UserVehicle);
 
   UserVehicleFactory = public abstract class(IUserVehicleFactory)
   private
-    method OnUserVehicleCreated(aID: LongInt; aFlags: ^VehicleMonitorOption; aVehicle: PUserVehicle);
+    method OnUserVehicleCreated(aID: LongInt; aVehicle: ^UserVehicle);
     begin
       if assigned(UserVehicleCreated) then 
-        UserVehicleCreated(aID, aFlags, aVehicle);
+        UserVehicleCreated(aID, aVehicle);
     end;
 
-    method CreateUserVehicle(aID: LongInt; const var aProperty: VehicleProperty; aFlags: ^VehicleMonitorOption): PUserVehicle;
+    method CreateUserVehicle(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): ^UserVehicle;
     begin
       // Create and reset the User Vehicle memory.
-      result := PUserVehicle(malloc(sizeOf(UserVehicle)));
+      result := ^UserVehicle(malloc(sizeOf(UserVehicle)));
       memset(^Byte(result), 0, sizeOf(UserVehicle));
+      
       // Assigne the members.
       result^.MT := GetUserVehicleMethodTable;
       result^.Data := GetUserVehicleData(aID, aProperty, aFlags);
+      
       // Fire the event.
-      OnUserVehicleCreated(aID, aFlags, result);
+      OnUserVehicleCreated(aID, result);
     end;
   protected
-    method GetUserVehicleData(aID: LongInt; const var aProperty: VehicleProperty; aFlags: ^VehicleMonitorOption): Object; virtual; abstract;
-    method GetUserVehicleMethodTable: PUserVehicleMethodTable; virtual; abstract;
+    method GetUserVehicleData(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): Object; virtual; abstract;
+    method GetUserVehicleMethodTable: ^UserVehicleMethodTable; virtual; abstract;
   public 
-    {/*! 
-         \brief
-            Frees a user vehicle and relases memory.
-      */}
-    class method FreeUserVehicle(aUserVehicle: PUserVehicle);
+    {/*! Frees a user vehicle and related resource. */}
+    class method FreeUserVehicle(aUserVehicle: ^UserVehicle);
     begin
       aUserVehicle^.Data := nil;
       free(^Void(aUserVehicle));
     end; 
 
-    {/*! 
-         \brief 
-            Occurs when a new user vehicle is created. The event handler should be defined by a plugin
-            owner, while giving the plugin an opportunity to intercept data, or arrange relevant
-            actions. For example, save the pointer of the newly created vehicle to an internal list
-            for house-keeping purpose at the plugin level.        
+    {/*! Occurs when a new user vehicle is created. The event handler should be defined by a plugin
+         owner, while giving the plugin an opportunity to intercept data, or arrange relevant
+         actions. For example, save the pointer of the newly created vehicle to an internal list
+         for house-keeping purpose at the plugin level.        
       */}
     event UserVehicleCreated: UserVehicleCreatedEventHandler;
   end;

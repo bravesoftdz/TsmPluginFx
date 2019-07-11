@@ -1,4 +1,10 @@
-﻿namespace Tsm.Plugin.Core;
+﻿{/*! 
+     Provides interface for vehicle monitor manager.
+     
+     \modified    2019-07-09 14:37pm
+     \author      Wuping Xin
+  */}
+namespace Tsm.Plugin.Core;
 
 uses 
   rtl;

@@ -1,5 +1,6 @@
 ﻿{/*! 
-     \brief       Provides a set of COM helper functions for TsmApi COM interfaces.
+     Provides COM helper functions.
+     
      \modified    2019-07-02 11:19am
      \author      Wuping Xin
   */}
@@ -9,7 +10,7 @@ uses
   rtl;
 
 type
-  VARIANT_BOOL = type Int16;
+  VARIANT_BOOL = public Int16;
 const
   VARIANT_TRUE   = $FFFF;
   VARIANT_FALSE  = $0000;
