@@ -2,7 +2,7 @@
 
 TsmPluginFramework enables development of TransModeler plugins with integrated scripted GUI, parameter configurations, and user's core business logic - all in a unified workflow.
 
-TsmPluginFramework wrapps up TransModeler's raw TsmApi COM interfaces, Parameter Editor interface, Vehicle Monitor APIs, and Gisdk scripting into a high-level appliaction framework. 
+TsmPluginFramework wrapps up TransModeler's raw TsmApi COM interfaces, Parameter Editor interface, Vehicle Monitor APIs, and Gisdk scripting into a high-level application framework. 
 
 Caliper Gisdk script compiler is embedded in the framework as Just-in-Time (JIT) compiling engine. This allows genreating native looking user interfaces consistent with TransModeler's own UI theme.
 
