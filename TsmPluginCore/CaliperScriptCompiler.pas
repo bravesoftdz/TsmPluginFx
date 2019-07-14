@@ -12,13 +12,12 @@ uses
 type
   CaliperScriptCompiler = public class
   public
-    class method Compile(const aScript: String; const aCompilerPath: String; 
-      const aUiDbFilePathWithoutExt: String; out aMessages: ImmutableList<String>): Boolean;
+    class method Compile(const aScript: String; const aCompilerPath: String; const aUiDbFilePathWithoutExt: String; out aMessages: ImmutableList<String>): Boolean;
     begin
       // Save the script content to a disk file in the same directory as the UI database.
-      var lScriptFilePath := aUiDbFilePathWithoutExt + 'Script.rsc';      
+      var lScriptFilePath := aUiDbFilePathWithoutExt + 'Script.rsc';
       
-      if File.Exists(lScriptFilePath) then 
+      if File.Exists(lScriptFilePath) then
         File.Delete(lScriptFilePath);
       
       File.WriteText(lScriptFilePath, aScript);
@@ -26,7 +25,7 @@ type
       // Delete any pre-existing error file.
       var lCompilerErrorFilePath := aUiDbFilePathWithoutExt + '.err';
       
-      if File.Exists(lCompilerErrorFilePath) then 
+      if File.Exists(lCompilerErrorFilePath) then
         File.Delete(lCompilerErrorFilePath);
 
       // Compile the script
@@ -34,7 +33,7 @@ type
       Process.Run(aCompilerPath, lArgs.ToArray);
 
       // Check if there is any errors.
-      if File.Exists(lCompilerErrorFilePath) then 
+      if File.Exists(lCompilerErrorFilePath) then
         aMessages := File.ReadLines(lCompilerErrorFilePath);
       
       result := assigned(aMessages) and (aMessages.Count > 0);

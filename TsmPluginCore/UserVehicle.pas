@@ -114,32 +114,58 @@ type
   end;
 
   [CallingConvention(CallingConvention.FastCall)]
-  DepartureMethodType = public method(aSelf: ^UserVehicle; aTime: Double);
+  DepartureMethodType = public method(
+    aSelf: ^UserVehicle; 
+    aTime: Double);
 
   [CallingConvention(CallingConvention.FastCall)]
-  ParkedMethodType = public method(aSelf: ^UserVehicle; aTime: Double);
+  ParkedMethodType = public method(
+    aSelf: ^UserVehicle; 
+    aTime: Double);
 
   [CallingConvention(CallingConvention.FastCall)]
-  StalledMethodType = public method(aSelf: ^UserVehicle; aTime: Double; aStalled: Boolean);
+  StalledMethodType = public method(
+    aSelf: ^UserVehicle; 
+    aTime: Double; 
+    aStalled: Boolean);
 
   [CallingConvention(CallingConvention.FastCall)]
-  ArrivalMethodType = public method(aSelf: ^UserVehicle; aTime: Double);
+  ArrivalMethodType = public method(
+    aSelf: ^UserVehicle; 
+    aTime: Double);
 
   [CallingConvention(CallingConvention.FastCall)]
-  UpdateMethodType = public method(aSelf: ^UserVehicle; aTime: Double; aState: ^VehicleBasicState);
+  UpdateMethodType = public method(
+    aSelf: ^UserVehicle; 
+    aTime: Double; 
+    aState: ^VehicleBasicState);
 
   [CallingConvention(CallingConvention.FastCall)]
-  CarFollowingMethodType = public method(aSelf: ^UserVehicle; aTime: Double; aData: ^CarFollowingData; aTsmProposedAccelRate: Single): Single;
+  CarFollowingMethodType = public method(
+    aSelf: ^UserVehicle; 
+    aTime: Double;
+    aData: ^CarFollowingData; 
+    aTsmProposedAccelRate: Single): Single;
 
   [CallingConvention(CallingConvention.FastCall)]
-  TransitStopMethodType = public method(aSelf: ^UserVehicle; aTime: Double; aTransitStopInfo: ^TransitStopInfo; aDwellTime: Single): Single;
+  TransitStopMethodType = public method(
+    aSelf: ^UserVehicle; 
+    aTime: Double; 
+    aTransitStopInfo: ^TransitStopInfo; 
+    aDwellTime: Single): Single;
 
   [CallingConvention(CallingConvention.FastCall)]
-  PositionMethodType = public method(aSelf: ^UserVehicle; aTime: Double; aPosition: ^VehiclePosition);
+  PositionMethodType = public method(
+    aSelf: ^UserVehicle; 
+    aTime: Double; 
+    aPosition: ^VehiclePosition);
 
   [CallingConvention(CallingConvention.FastCall)]
-  AttachVehicleFailMethodType = public method(aSelf: ^UserVehicle; aMessage: OleString): Boolean;
+  AttachVehicleFailMethodType = public method(
+    aSelf: ^UserVehicle; 
+    aMessage: OleString): Boolean;
 
+  {/*! Mocks TransModeler C++ IUserVehicle interface's virtual method table. */}
   UserVehicleMethodTable = public record
   public
     DepartureMethod: DepartureMethodType;
@@ -153,25 +179,36 @@ type
     AttachVehicleFailMethod: AttachVehicleFailMethodType;
   end;
 
+  {/*! Provides a mock up of TransModeler C++ IUserVehicle interface. */}
   UserVehicle = public record
   public
-    MT: ^UserVehicleMethodTable;
+    MT: ^UserVehicleMethodTable; // "Faked" C++ VMT
     Data: Object;
   end;
 
-  IUserVehicleFactory = public interface
-    method CreateUserVehicle(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): ^UserVehicle;
-  end;
-
-  UserVehicleCreatedEventHandler
-    = public block(aID: LongInt; aVehicle: ^UserVehicle);
-
-  UserVehicleFactory = public abstract class(IUserVehicleFactory)
+  UserVehicleFactory = public abstract class
   private
-    method OnUserVehicleCreated(aID: LongInt; aVehicle: ^UserVehicle);
+    fBuffer: List<^UserVehicle>;
+    fLock: Integer := 0;   
+
+    {/*! Frees a user vehicle and related resource. */}
+    method DeleteUserVehicle(aUserVehicle: ^UserVehicle);
+    begin   
+      aUserVehicle^.Data := nil;
+      free(^Void(aUserVehicle));
+    end;
+  protected
+    method GetUserVehicleData(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): Object; virtual; abstract;    
+    method GetUserVehicleMethodTable: ^UserVehicleMethodTable; virtual; abstract;
+  public 
+    constructor;
     begin
-      if assigned(UserVehicleCreated) then 
-        UserVehicleCreated(aID, aVehicle);
+      fBuffer := new List<^UserVehicle>(10000);
+    end;
+
+    finalizer;
+    begin
+      Reset;
     end;
 
     method CreateUserVehicle(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): ^UserVehicle;
@@ -184,26 +221,28 @@ type
       result^.MT := GetUserVehicleMethodTable;
       result^.Data := GetUserVehicleData(aID, aProperty, aFlags);
       
-      // Fire the event.
-      OnUserVehicleCreated(aID, result);
+      Utilities.SpinLockEnter(var fLock);
+      fBuffer.Add(result);
+      Utilities.SpinLockExit(var fLock);      
     end;
-  protected
-    method GetUserVehicleData(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): Object; virtual; abstract;
-    method GetUserVehicleMethodTable: ^UserVehicleMethodTable; virtual; abstract;
-  public 
-    {/*! Frees a user vehicle and related resource. */}
-    class method FreeUserVehicle(aUserVehicle: ^UserVehicle);
+
+    method Reset;
     begin
-      aUserVehicle^.Data := nil;
-      free(^Void(aUserVehicle));
-    end; 
+      for each userVehicle in fBuffer do begin
+        DeleteUserVehicle(userVehicle);
+      end;
 
-    {/*! Occurs when a new user vehicle is created. The event handler should be defined by a plugin
-         owner, while giving the plugin an opportunity to intercept data, or arrange relevant
-         actions. For example, save the pointer of the newly created vehicle to an internal list
-         for house-keeping purpose at the plugin level.        
-      */}
-    event UserVehicleCreated: UserVehicleCreatedEventHandler;
+      fBuffer.Clear;
+    end;
+
+    method UserVehicleDataSet<T>: ImmutableList<T>;
+    begin
+      var lList := new List<T>;
+      for each userVehicle in fBuffer do begin
+        lList.Add(userVehicle as T);
+      end;
+
+      exit lList.ToImmutableList;
+    end;
   end;
-
 end.

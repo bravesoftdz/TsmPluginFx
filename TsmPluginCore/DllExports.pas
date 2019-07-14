@@ -98,8 +98,8 @@ implementation
 
   method CreateUserVehicle(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): ^UserVehicle;
   begin
-    if assigned(TsmPlugin.Singleton.UserVehicleFactory) then
-      result := TsmPlugin.Singleton.UserVehicleFactory.CreateUserVehicle(aID, aProperty, aFlags);
+    if assigned(TsmPlugin.Singleton.VehicleFactory) then
+      result := TsmPlugin.Singleton.VehicleFactory.CreateUserVehicle(aID, aProperty, aFlags);
   end;
 
   method DllMain(aModule: rtl.HMODULE; aReason: rtl.DWORD; aReserved: ^Void): Boolean;

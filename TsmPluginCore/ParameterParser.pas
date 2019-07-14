@@ -12,8 +12,7 @@ uses
 type
   XmlDocumentHelper =  public extension class(XmlDocument)
   public
-    method AllElementsWithName(aLocalName: not nullable String; aNamespace: nullable XmlNamespace := nil;
-      aXmlElement: XmlElement := nil): not nullable sequence of XmlElement;
+    method AllElementsWithName(aLocalName: not nullable String; aNamespace: nullable XmlNamespace := nil; aXmlElement: XmlElement := nil): not nullable sequence of XmlElement;
     begin
       var lXmlElement: XmlElement;
 
@@ -39,8 +38,7 @@ type
     fPmlValueTag: String;
     fBaseParamItems, fUserParamItems, fProjectParamItems: ISequence<XmlElement>;
   private
-    method FindParameterItem(const aName: not nullable String;
-      const aItems: not nullable ISequence<XmlElement>): XmlElement;
+    method FindParameterItem(const aName: not nullable String; const aItems: not nullable ISequence<XmlElement>): XmlElement;
     begin
       var lparamItems: ISequence<XmlElement> :=
               from
@@ -87,8 +85,7 @@ type
     end;
 
   public
-    constructor(const aBasePmlFilePath: not nullable String; const aUserPmlFilePath: not nullable String;
-      const aProjectPmlFilePath: not nullable String);
+    constructor(const aBasePmlFilePath: not nullable String; const aUserPmlFilePath: not nullable String; const aProjectPmlFilePath: not nullable String);
     begin
       fBasePmlDoc := XmlDocument.FromFile(aBasePmlFilePath);
       fPmlValueAttribute := fBasePmlDoc.Root.Attribute['value'];

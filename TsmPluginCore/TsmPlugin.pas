@@ -24,11 +24,14 @@ type
     property Description: String read;
     property PluginDirectory: String read;
     property PluginName: String read;
-    property UserVehicleFactory: IUserVehicleFactory read;
+    property VehicleFactory: UserVehicleFactory read;
   end;
 
-  PluginActivateEventHandler = public block();  
-  PluginDeactivateEventHandler = public block();
+  PluginActivateEventHandler 
+  	= public block();
+  
+  PluginDeactivateEventHandler
+    = public block();
 
   TsmPlugin = public abstract class(ITsmPlugin)
   private
@@ -71,7 +74,7 @@ type
     method GetPluginName: String; virtual; abstract;
     method GetSupportedEventSinkTypes: TsmEventSinkTypes; virtual; abstract;
     method Subscribe(aEventSink: ITsmEventSink); virtual; abstract;
-    method GetUserVehicleFactory: IUserVehicleFactory; virtual;
+    method GetUserVehicleFactory: UserVehicleFactory; virtual;
   public
     constructor(const aPluginDirectory: String);
     class method CreateSingleton(const aPluginDirectory: String): Boolean;
@@ -79,61 +82,58 @@ type
     method OpenParameterEditor;
   public
     {/*! A boolean flag indicating whether the plugin is activated or not. */}
-    property Active: Boolean
+    property Active: Boolean 
       read begin
         result := fActive;
       end
       write begin
         if fActive <> value then begin
           fActive := value;
-          if fActive then DoActivate else DoDeactivate;
+          
+          if fActive then 
+            DoActivate 
+          else 
+            DoDeactivate;
         end;
       end;
 
     {/*! Description string of the plugin in JSON format. */}
-    property Description: String
-      read begin
-        result := GetDescription;
-      end;
+    property Description: String read GetDescription;
 
     {/*! Current plugin directory. */}
-    property PluginDirectory: String
-      read begin
-        result := fPluginDirectory;
-      end;
-
+    property PluginDirectory: String read fPluginDirectory;
+ 
     {/*! Name of the plugin. It must not contain spaces. */}
-    property PluginName: String
-      read begin
-        result := GetPluginName;
-        assert(not result.Contains(' '));
-      end;
+    property PluginName: String read GetPluginName;
 
     {/*! Optional parameter file specific to an opened project. */}
     property ProjectPmlFilePath: String
       read begin
         result := String.Empty;
+
         var lProjectFolder: OleString;
-        if Succeeded(fTsmApp.Get_ProjectFolder(out lProjectFolder)) then
-          if lProjectFolder.Length > 0 then
-            result := Path.Combine(lProjectFolder.ToString, PluginName + PmlFileExtension);
+        fTsmApp.Get_ProjectFolder(out lProjectFolder);
+
+        if lProjectFolder.Length > 0 then
+          result := Path.Combine(lProjectFolder.ToString, PluginName + PmlFileExtension);
       end;
 
     {/*! Supported event sink types. */}
-    property SupportedEventSinkTypes: TsmEventSinkTypes
-      read begin
-        result := GetSupportedEventSinkTypes();
-      end;
-
+    property SupportedEventSinkTypes: TsmEventSinkTypes read GetSupportedEventSinkTypes;
+      
     {/*! Uesr vehicle factory. */}
-    property UserVehicleFactory: IUserVehicleFactory
-      read begin
-        result := GetUserVehicleFactory;
-      end;
-    
+    property VehicleFactory: UserVehicleFactory read GetUserVehicleFactory;
+      
+    {/*! Instance of ITsmApplication interface. */}
+    property TsmApplication: ITsmApplication read fTsmApp;
+         
+    {/*! The singleton instance of ITsmPlugin interface. */}
     class property Singleton: ITsmPlugin read fSingleton;
-
+    
+    {/*! Occurs when the plugin is activated. */}
     event PluginActivate: PluginActivateEventHandler;
+
+    {/*! Occurs when the plugin is deactivated. */}
     event PluginDeactivate: PluginDeactivateEventHandler;
   end;
 
@@ -141,10 +141,14 @@ implementation
 
   class method TsmPlugin.CreateSingleton(const aPluginDirectory: String): Boolean;
   begin
-    if assigned(fSingleton) then exit true;
+    if assigned(fSingleton) then 
+      exit true; 
+   
     fSingleton := CreateUserPlugin(aPluginDirectory);
-    result := fSingleton.Initialize;
-    if not result then fSingleton := nil;
+    result := fSingleton.Initialize;    
+    
+    if not result then 
+      fSingleton := nil;
   end;
 
   constructor TsmPlugin(const aPluginDirectory: String);
@@ -259,11 +263,13 @@ implementation
 
   method TsmPlugin.ValidatePmlBaseFile;
   begin
-    if not File.Exists(fBasePmlFilePath) then File.WriteText(fBasePmlFilePath, GeneratePmlBaseContent);
+    var lPmlBaseContent: String := GeneratePmlBaseContent;
+    if lPmlBaseContent <> String.Empty then
+      if not File.Exists(fBasePmlFilePath) then File.WriteText(fBasePmlFilePath, lPmlBaseContent);
   end;
 
   method TsmPlugin.ValidateUiDatabase;
-  begin
+  begin    
     if not File.Exists(fUiDbFilePath) then begin
       // Get TransModeler Gisdk resource resource compiler path.
       var lTsmProgramFolder: OleString;
@@ -304,7 +310,7 @@ implementation
     result := new TsmPluginParameterParser(fBasePmlFilePath, fUserPmlFilePath, ProjectPmlFilePath);
   end;
 
-  method TsmPlugin.GetUserVehicleFactory: IUserVehicleFactory;
+  method TsmPlugin.GetUserVehicleFactory: UserVehicleFactory;
   begin
     result := nil;
   end;
