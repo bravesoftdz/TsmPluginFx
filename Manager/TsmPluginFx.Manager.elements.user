@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RootNamespace>TsmPluginFx.Manager</RootNamespace>
+    <Architecture>x64</Architecture>
+    <OutputPath>..\..\Output\Debug\Windows\x86_64</OutputPath>
+    <AssemblyName>TsmPluginFx.Manager</AssemblyName>
+  </PropertyGroup>
+</Project>
