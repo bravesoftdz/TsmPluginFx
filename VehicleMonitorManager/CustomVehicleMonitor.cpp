@@ -1,8 +1,7 @@
 #include "CustomVehicleMonitor.h"
 
-namespace Tsm {
-namespace Plugin {
-namespace Core {
+namespace TsmPluginFx {
+namespace VehicleMonitor {
 
 CustomVehicleMonitor::CustomVehicleMonitor(LPWSTR aName, LPWSTR aUserVehicleDllName)
 {
@@ -48,6 +47,5 @@ bool CustomVehicleMonitor::UserVehicleDllLoaded()
    return (nullptr != _userVehicleDllHandle) && (nullptr != _createUserVehicle);
 };
 
-}
 }
 }

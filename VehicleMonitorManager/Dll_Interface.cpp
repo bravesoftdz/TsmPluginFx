@@ -2,9 +2,8 @@
 #include "CustomVehicleMonitor.h"
 #include <windows.h>
 
-namespace Tsm {
-namespace Plugin {
-namespace Core {
+namespace TsmPluginFx {
+namespace VehicleMonitor {
 
 void* _stdcall CreateVehicleMonitor(LPWSTR aVehicleMonitorName, LPWSTR aUserVehicleDllName)
 {
@@ -46,6 +45,5 @@ void _stdcall DeleteVehicleMonitor(void* aMonitor)
    delete (CUserVehicleMonitor*)aMonitor;
 }
 
-} // namespace Core
-} // namespace Plugin
-} // namespace Tsm
+}
+}
