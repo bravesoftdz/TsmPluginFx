@@ -4,59 +4,59 @@
      \modified    2019-07-09 13:45pm
      \author      Wuping Xin
   */}
-namespace Tsm.Plugin.Core;
+namespace TsmPluginFx.Core;
 
 uses
   rtl;
 
 type
   VehicleMonitorOption = public flags (   
-      None = $00000000,
-      Update = $00000001,
-      Position = $00000002,
-      CarFollowingSubject = $00000010,
-      CarFollowingLeader = $00000020,
-      CarFollowingFollower = $00000040,
-      CarFollowingAll = $00000070,
-      All = $0000000F
+      None                   = $00000000,
+      Update                 = $00000001,
+      Position               = $00000002,
+      CarFollowingSubject    = $00000010,
+      CarFollowingLeader     = $00000020,
+      CarFollowingFollower   = $00000040,
+      CarFollowingAll        = $00000070,
+      All                    = $0000000F
   ) of UInt32;
 
   TripType = public enum (
-      Regular = $00,
-      Access = $01,
+      Regular  = $00,
+      Access   = $01,
       Business = $02,
-      Closing = $03
+      Closing  = $03
   ) of Byte;
 
   SignalState = public enum (
-      Blank = $00,
-      Red = $01,
-      Yellow = $02,
-      Green = $03,
-      Free = $04,
-      RTOR = $05,
-      ProtectedSignal = $07,
-      TransitProtected = $08,
-      FlashingRed = $09,
-      FlashingYellow = $0A,
-      NonTransitPermitted = $0B,
-      Blocked = $0C,
-      NonTransitProtected = $0F
+      Blank                  = $00,
+      Red                    = $01,
+      Yellow                 = $02,
+      Green                  = $03,
+      Free                   = $04,
+      RTOR                   = $05,
+      ProtectedSignal        = $07,
+      TransitProtected       = $08,
+      FlashingRed            = $09,
+      FlashingYellow         = $0A,
+      NonTransitPermitted    = $0B,
+      Blocked                = $0C,
+      NonTransitProtected    = $0F
   ) of Byte;
 
   AutomationLevel = public enum (
-      L0_None = $00,
+      L0_None                = $00,
       L1A_AssistedAccelDecel = $1A,
-      L1A_AssistedSteering = $1B,
-      L2_Partial = $20,
-      L3_Conditional = $30,
-      L4_High = $40,
-      L5_Full = $50
+      L1A_AssistedSteering   = $1B,
+      L2_Partial             = $20,
+      L3_Conditional         = $30,
+      L4_High                = $40,
+      L5_Full                = $50
   ) of Byte;
 
   VehicleProperty = public record
   public
-    VehicleClass: Int16;  // 1-based index to vehicle class
+    VehicleClass: Int16;
     Occupancts: Int16;
     Length: Single;
     Width: Single;
@@ -165,7 +165,6 @@ type
     aSelf: ^UserVehicle; 
     aMessage: OleString): Boolean;
 
-  {/*! Mocks TransModeler C++ IUserVehicle interface's virtual method table. */}
   UserVehicleMethodTable = public record
   public
     DepartureMethod: DepartureMethodType;
@@ -179,7 +178,6 @@ type
     AttachVehicleFailMethod: AttachVehicleFailMethodType;
   end;
 
-  {/*! Provides a mock up of TransModeler C++ IUserVehicle interface. */}
   UserVehicle = public record
   public
     MT: ^UserVehicleMethodTable; // "Faked" C++ VMT
@@ -191,14 +189,13 @@ type
     fBuffer: List<^UserVehicle>;
     fLock: Integer := 0;   
 
-    {/*! Frees a user vehicle and related resource. */}
     method DeleteUserVehicle(aUserVehicle: ^UserVehicle);
     begin   
       aUserVehicle^.Data := nil;
       free(^Void(aUserVehicle));
     end;
   protected
-    method GetUserVehicleData(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): Object; virtual; abstract;    
+    method GetUserVehicleData(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): Object; virtual; abstract;
     method GetUserVehicleMethodTable: ^UserVehicleMethodTable; virtual; abstract;
   public 
     constructor;
@@ -213,12 +210,10 @@ type
 
     method CreateUserVehicle(aID: LongInt; aProperty: ^VehicleProperty; aFlags: ^VehicleMonitorOption): ^UserVehicle;
     begin
-      // Create and reset the User Vehicle memory.
       result := ^UserVehicle(malloc(sizeOf(UserVehicle)));
       memset(^Byte(result), 0, sizeOf(UserVehicle));
       
-      // Assigne the members.
-      result^.MT := GetUserVehicleMethodTable;
+      result^.MT   := GetUserVehicleMethodTable;
       result^.Data := GetUserVehicleData(aID, aProperty, aFlags);
       
       Utilities.SpinLockEnter(var fLock);
@@ -228,20 +223,14 @@ type
 
     method Reset;
     begin
-      for each userVehicle in fBuffer do begin
-        DeleteUserVehicle(userVehicle);
-      end;
-
+      for each userVehicle in fBuffer do DeleteUserVehicle(userVehicle);
       fBuffer.Clear;
     end;
 
     method UserVehicleDataSet<T>: ImmutableList<T>;
     begin
       var lList := new List<T>;
-      for each userVehicle in fBuffer do begin
-        lList.Add(userVehicle as T);
-      end;
-
+      for each userVehicle in fBuffer do lList.Add(userVehicle as T);
       exit lList.ToImmutableList;
     end;
   end;

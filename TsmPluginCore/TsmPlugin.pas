@@ -1,12 +1,10 @@
 ﻿{/*! 
      Provides interface and base class for developing TransModeler plugins.
      
-     \modified    2019-07-09 13:45pm
+     \modified    2019-07-17 17:46pm
      \author      Wuping Xin
   */}
-namespace Tsm.Plugin.Core;
-
-interface
+namespace TsmPluginFx.Core;
 
 uses
   rtl,
@@ -20,22 +18,19 @@ type
   ITsmPlugin = public interface(IUnknown)
     method Initialize: Boolean;
     method OpenParameterEditor;
-    property Active: Boolean read write;
-    property Description: String read;
+    property Enabled: Boolean read write;
     property PluginDirectory: String read;
+    property PluginInfo: String read;
     property PluginName: String read;
+    property PluginVersion: String read;
     property VehicleFactory: UserVehicleFactory read;
   end;
 
-  PluginActivateEventHandler 
-  	= public block();
-  
-  PluginDeactivateEventHandler
-    = public block();
+  PluginEnabledEventHandler  = public block();  
+  PluginDisabledEventHandler = public block();
 
   TsmPlugin = public abstract class(ITsmPlugin)
   private
-    {/*! constants. */}
     const PmlFileExtension : String = '.xml'; public;
     const UiDbFileExtension : String = '.dbd'; public;
     const AddPluginUiMacroName : String = 'AddPluginUI'; public;
@@ -43,276 +38,233 @@ type
     const UiRscCompilerName : String = 'rscc.exe'; public;
     const TsmUserPrefFolderName : String = 'User Preference'; public;
 
-    {/*! private fields. */}
-    var fActive: Boolean;
+    var fEnabled: Boolean;
     var fEventSinkManager: ITsmEventSinkManager;
     var fUiDbFilePath, fPluginDirectory, fBasePmlFilePath, fUserPmlFilePath: String;
     var fTsmApp: ITsmApplication;
     var fPmEditor: IParameterEditor;
-    
-    {/*! The singleton Plugin instance accessed as ITsmPlugin interface. */}
+
     class var fSingleton: ITsmPlugin := nil;   
   private
-    constructor;
+    constructor; empty;    
+
     finalizer;
-    method OnPluginActivate;
-    method OnPluginDeactivate;
-    method DoActivate;
-    method DoDeactivate;
+    begin
+      fEventSinkManager := nil;
+      fPmEditor := nil;
+      fTsmApp := nil;
+    end;
+
+    method OnPluginEnabled;
+    begin
+      if assigned(PluginEnabled) then PluginEnabled();
+    end;
+
+    method OnPluginDisabled;
+    begin
+      if assigned(PluginDisabled) then PluginDisabled();
+    end;
+
+    method DoEnablePlugin;
+    begin
+      fEventSinkManager.Connect(SupportedEventSinkTypes);
+      AddPluginUI;
+      OnPluginEnabled;
+    end;
+
+    method DoDisablePlugin;
+    begin
+      fEventSinkManager.Disconnect(SupportedEventSinkTypes);
+      RemovePluginUI;
+      OnPluginDisabled;
+    end;
+
     method AddPluginUI;
+    begin
+      var lArgs, lRetVal: VARIANT;
+      var lMacroName: OleString := AddPluginUiMacroName;
+      var lDb: OleString := fUiDbFilePath;
+      rtl.VariantInit(@lArgs);
+      rtl.VariantInit(@lRetVal);
+      fTsmApp.Macro(lMacroName, lDb, lArgs, out lRetVal);
+      rtl.VariantClear(@lRetVal);
+    end;
+
     method RemovePluginUI;
+    begin
+      var lArgs, lRetVal: VARIANT;
+      var lMacroName: OleString := RemovePluginUiMacroName;
+      var lDb: OleString := fUiDbFilePath;
+      rtl.VariantInit(@lArgs);
+      rtl.VariantInit(@lRetVal);
+      fTsmApp.Macro(lMacroName, lDb, lArgs, out lRetVal);
+      rtl.VariantClear(@lRetVal);
+    end;
+
     method SubscribeEvents;
+    begin
+      for lType: TsmEventSinkType := TsmEventSinkType.Undefined to TsmEventSinkType.All do
+        if (lType in SupportedEventSinkTypes) then Subscribe(fEventSinkManager.GetEventSink(lType));
+    end;
+
     method ValidatePmlBaseFile;
+    begin
+      var lPmlBaseContent: String := GeneratePmlBaseContent;
+      if lPmlBaseContent <> String.Empty then
+        if not File.Exists(fBasePmlFilePath) then File.WriteText(fBasePmlFilePath, lPmlBaseContent);
+    end;
+
     method ValidateUiDatabase;
+    begin    
+      method GisdkCompilerPath: String;
+      begin
+        var lTsmProgramFolder: OleString;
+        fTsmApp.Get_ProgramFolder(out lTsmProgramFolder);
+        result := Path.Combine(lTsmProgramFolder.ToString, UiRscCompilerName);
+      end;
+    
+      if not File.Exists(fUiDbFilePath) then begin  
+        var lCompileResult := CaliperScriptCompiler.Compile(
+              GenerateUiScriptContent,  
+              GisdkCompilerPath,        
+              Path.GetPathWithoutExtension(fUiDbFilePath));
+
+        if not lCompileResult.Success then
+          raise new EUiScriptCompileErrorException(lCompileResult.Errors.JoinedString(Environment.LineBreak));
+      end;
+    end;
   protected
     [Conditional('DEBUG')]
     method Log(const aMessage: String);
+    begin
+      rtl.OutputDebugString(rtl.LPCWSTR(aMessage.ToCharArray));
+    end;
+
     method ParameterParser: TsmPluginParameterParser;
+    begin
+      result := new TsmPluginParameterParser(fBasePmlFilePath, fUserPmlFilePath, ProjectPmlFilePath);
+    end;
+
+    {$REGION 'Protected methods that must be implemented by a sub class.'}
     method GeneratePmlBaseContent: String; virtual; abstract;
     method GenerateUiScriptContent: String; virtual; abstract;
-    method GetDescription: String; virtual; abstract;
+    method GetPluginInfo: String; virtual; abstract;
     method GetPluginName: String; virtual; abstract;
     method GetSupportedEventSinkTypes: TsmEventSinkTypes; virtual; abstract;
+    method GetPluginVersion: String; virtual; abstract;
     method Subscribe(aEventSink: ITsmEventSink); virtual; abstract;
+    {$ENDREGION}
+
     method GetUserVehicleFactory: UserVehicleFactory; virtual;
+    begin
+      result := nil;
+    end;
+
   public
     constructor(const aPluginDirectory: String);
+    begin
+      fTsmApp   := CoTsmApplication.Create;
+      fPmEditor := CoParameterEditor.Create;
+      fEventSinkManager := new TsmEventSinkManager(fTsmApp);
+      fEnabled := false;
+      fPluginDirectory := aPluginDirectory;    
+
+      fBasePmlFilePath := Path.Combine(fPluginDirectory, PluginName + PmlFileExtension);    
+
+      var lTsmUserPrefFolder: OleString;
+      fTsmApp.GetFolder(TsmUserPrefFolderName, out lTsmUserPrefFolder);
+      fUserPmlFilePath := Path.Combine(lTsmUserPrefFolder.ToString, PluginName + PmlFileExtension);
+    
+      fUiDbFilePath := Path.Combine(fPluginDirectory, PluginName + UiDbFileExtension);
+    
+      // Attach event handlers to each permissible event sinks as specified in sub class.
+      SubscribeEvents;
+    end;
+    
     class method CreateSingleton(const aPluginDirectory: String): Boolean;
+    begin
+      if assigned(fSingleton) then exit true;    
+      fSingleton := CreateUserPlugin(aPluginDirectory);
+      result := fSingleton.Initialize;        
+      if not result then fSingleton := nil;
+    end;
+
     method Initialize: Boolean;
+    begin
+      try
+        ValidatePmlBaseFile;
+        ValidateUiDatabase;
+      except
+        on E: EUiScriptCompileErrorException do begin
+          result := false;
+          Log(E.Message + E.Errors);
+        end;
+        on E: EDllModuleLoadingException do begin
+          result := false;
+          Log(E.Message);
+        end;
+        on E: Exception do begin
+          result := false;
+          Log(E.Message);
+        end;
+      end;
+    end;
+
     method OpenParameterEditor;
+    begin
+      fPmEditor.Edit(fBasePmlFilePath, fUserPmlFilePath, ProjectPmlFilePath);
+    end;
   public
-    {/*! A boolean flag indicating whether the plugin is activated or not. */}
-    property Active: Boolean 
+    property Enabled: Boolean 
       read begin
-        result := fActive;
+        result := fEnabled;
       end
       write begin
-        if fActive <> value then begin
-          fActive := value;
-          
-          if fActive then 
-            DoActivate 
-          else 
-            DoDeactivate;
+        if fEnabled <> value then begin
+          fEnabled := value;          
+          if fEnabled then DoEnablePlugin else DoDisablePlugin;
         end;
       end;
 
-    {/*! Description string of the plugin in JSON format. */}
-    property Description: String read GetDescription;
+    property PluginInfo: String 
+      read GetPluginInfo;
 
-    {/*! Current plugin directory. */}
-    property PluginDirectory: String read fPluginDirectory;
+    property PluginDirectory: String 
+      read fPluginDirectory;
  
-    {/*! Name of the plugin. It must not contain spaces. */}
-    property PluginName: String read GetPluginName;
+    property PluginName: String
+      read begin
+        result := GetPluginName;
+      ensure
+         not result.Contains(' ');
+      end;
 
-    {/*! Optional parameter file specific to an opened project. */}
     property ProjectPmlFilePath: String
       read begin
-        result := String.Empty;
-
         var lProjectFolder: OleString;
-        fTsmApp.Get_ProjectFolder(out lProjectFolder);
-
-        if lProjectFolder.Length > 0 then
-          result := Path.Combine(lProjectFolder.ToString, PluginName + PmlFileExtension);
+        fTsmApp.Get_ProjectFolder(out lProjectFolder);       
+        result := if lProjectFolder.Length > 0 then Path.Combine(lProjectFolder.ToString, PluginName + PmlFileExtension) else String.Empty;
       end;
 
-    {/*! Supported event sink types. */}
-    property SupportedEventSinkTypes: TsmEventSinkTypes read GetSupportedEventSinkTypes;
-      
-    {/*! Uesr vehicle factory. */}
-    property VehicleFactory: UserVehicleFactory read GetUserVehicleFactory;
-      
-    {/*! Instance of ITsmApplication interface. */}
-    property TsmApplication: ITsmApplication read fTsmApp;
-         
-    {/*! The singleton instance of ITsmPlugin interface. */}
-    class property Singleton: ITsmPlugin read fSingleton;
+    property SupportedEventSinkTypes: TsmEventSinkTypes 
+      read GetSupportedEventSinkTypes;      
     
-    {/*! Occurs when the plugin is activated. */}
-    event PluginActivate: PluginActivateEventHandler;
-
-    {/*! Occurs when the plugin is deactivated. */}
-    event PluginDeactivate: PluginDeactivateEventHandler;
-  end;
-
-implementation
-
-  class method TsmPlugin.CreateSingleton(const aPluginDirectory: String): Boolean;
-  begin
-    if assigned(fSingleton) then 
-      exit true; 
-   
-    fSingleton := CreateUserPlugin(aPluginDirectory);
-    result := fSingleton.Initialize;    
+    property VehicleFactory: UserVehicleFactory 
+      read GetUserVehicleFactory;      
     
-    if not result then 
-      fSingleton := nil;
-  end;
-
-  constructor TsmPlugin(const aPluginDirectory: String);
-  begin
-    fTsmApp := CoTsmApplication.Create;
-    fPmEditor := CoParameterEditor.Create;
-    fEventSinkManager := new TsmEventSinkManager(fTsmApp);
-    fActive := false;
-    fPluginDirectory := aPluginDirectory;
-    
-    // Base Pml file path.
-    fBasePmlFilePath := Path.Combine(fPluginDirectory, PluginName + PmlFileExtension);
-    
-    // User-specific Pml file path.
-    var lTsmUserPrefFolder: OleString;
-    fTsmApp.GetFolder(TsmUserPrefFolderName, out lTsmUserPrefFolder);
-    fUserPmlFilePath := Path.Combine(lTsmUserPrefFolder.ToString, PluginName + PmlFileExtension);
-    
-    // Ui database file path.
-    fUiDbFilePath := Path.Combine(fPluginDirectory, PluginName + UiDbFileExtension);
-    
-    // Attach event handlers to each permissible event sinks as specified in sub class.
-    SubscribeEvents;
-  end;
-
-  method TsmPlugin.Initialize: Boolean;
-  begin
-    try
-      ValidatePmlBaseFile;
-      ValidateUiDatabase;
-    except
-      on E: EUiScriptCompileErrorException do begin
-        result := false;
-        Log(E.Message + E.Errors);
+    property PluginVersion: String
+      read begin
+        exit GetPluginVersion;
       end;
-      on E: EDllModuleLoadingException do begin
-        result := false;
-        Log(E.Message);
-      end;
-      on E: Exception do begin
-        result := false;
-        Log(E.Message);
-      end;
-    end;
-  end;
 
-  constructor TsmPlugin;
-  begin
-    // Constructor should never be called.
-  end;
-
-  finalizer TsmPlugin;
-  begin
-    fEventSinkManager := nil;
-    fPmEditor := nil;
-    fTsmApp := nil;
-  end;
-
-  method TsmPlugin.OnPluginActivate;
-  begin
-    if assigned(PluginActivate) then
-      PluginActivate();
-  end;
-
-  method TsmPlugin.OnPluginDeactivate;
-  begin
-    if assigned(PluginDeactivate) then
-      PluginDeactivate();
-  end;
-
-  method TsmPlugin.DoActivate;
-  begin
-    fEventSinkManager.Connect(SupportedEventSinkTypes);
-    AddPluginUI;
-    OnPluginActivate;
-  end;
-
-  method TsmPlugin.DoDeactivate;
-  begin
-    fEventSinkManager.Disconnect(SupportedEventSinkTypes);
-    RemovePluginUI;
-    OnPluginDeactivate;
-  end;
-
-  method TsmPlugin.AddPluginUI;
-  begin
-    var lArgs, lRetVal: VARIANT;
-    var lMacroName: OleString := AddPluginUiMacroName;
-    var lDb: OleString := fUiDbFilePath;
-    rtl.VariantInit(@lArgs);
-    rtl.VariantInit(@lRetVal);
-    fTsmApp.Macro(lMacroName, lDb, lArgs, out lRetVal);
-    rtl.VariantClear(@lRetVal);
-  end;
-
-  method TsmPlugin.RemovePluginUI;
-  begin
-    var lArgs, lRetVal: VARIANT;
-    var lMacroName: OleString := RemovePluginUiMacroName;
-    var lDb: OleString := fUiDbFilePath;
-    rtl.VariantInit(@lArgs);
-    rtl.VariantInit(@lRetVal);
-    fTsmApp.Macro(lMacroName, lDb, lArgs, out lRetVal);
-    rtl.VariantClear(@lRetVal);
-  end;
-
-  method TsmPlugin.SubscribeEvents;
-  begin
-    for lType: TsmEventSinkType := TsmEventSinkType.Undefined to TsmEventSinkType.All do
-      if (lType in SupportedEventSinkTypes) then Subscribe(fEventSinkManager.GetEventSink(lType));
-  end;
-
-  method TsmPlugin.ValidatePmlBaseFile;
-  begin
-    var lPmlBaseContent: String := GeneratePmlBaseContent;
-    if lPmlBaseContent <> String.Empty then
-      if not File.Exists(fBasePmlFilePath) then File.WriteText(fBasePmlFilePath, lPmlBaseContent);
-  end;
-
-  method TsmPlugin.ValidateUiDatabase;
-  begin    
-    if not File.Exists(fUiDbFilePath) then begin
-      // Get TransModeler Gisdk resource resource compiler path.
-      var lTsmProgramFolder: OleString;
-      fTsmApp.Get_ProgramFolder(out lTsmProgramFolder);
-      var lCompilerPath := Path.Combine(lTsmProgramFolder.ToString, UiRscCompilerName);
-
-      // Get UI database file path, without file extension.
-      var lUiDbFilePathWithoutExt := Path.GetPathWithoutExtension(fUiDbFilePath);
-
-      // Do just-in-time compilation.
-      var lCompileErrors: ImmutableList<String>;
-      var lCompileSuccess := CaliperScriptCompiler.Compile(
-              GenerateUiScriptContent,  // UI database script
-              lCompilerPath,            // Caliper resource compiler path
-              lUiDbFilePathWithoutExt,  // Target UI database path
-              out lCompileErrors);      // Compilation errors
-
-      // Raise exception if the compilation has errors.
-      if not lCompileSuccess then
-        raise new EUiScriptCompileErrorException(lCompileErrors.JoinedString(Environment.LineBreak));
-    end;
-  end;
-
-  method TsmPlugin.OpenParameterEditor;
-  begin
-    fPmEditor.Edit(fBasePmlFilePath, fUserPmlFilePath, ProjectPmlFilePath);
-  end;
-
-  method TsmPlugin.Log(const aMessage: String);
-  begin
-    rtl.OutputDebugString(rtl.LPCWSTR(aMessage.ToCharArray));
-    //var lMessage: OleString := aMessage;
-    //fTsmApp.LogErrorMessage(lMessage);
-  end;
-
-  method TsmPlugin.ParameterParser: TsmPluginParameterParser;
-  begin
-    result := new TsmPluginParameterParser(fBasePmlFilePath, fUserPmlFilePath, ProjectPmlFilePath);
-  end;
-
-  method TsmPlugin.GetUserVehicleFactory: UserVehicleFactory;
-  begin
-    result := nil;
+    property TsmApplication: ITsmApplication 
+      read fTsmApp;         
+    
+    class property Singleton: ITsmPlugin 
+      read fSingleton;
+    
+    event PluginEnabled: PluginEnabledEventHandler;
+    event PluginDisabled: PluginDisabledEventHandler;
   end;
 
 end.

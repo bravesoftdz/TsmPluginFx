@@ -5,7 +5,7 @@
      \modified    2019-07-09 14:42am
      \author      Wuping Xin
   */}
-namespace Tsm.Plugin.Core;
+namespace TsmPluginFx.Core;
 
 uses
   rtl;
@@ -74,11 +74,11 @@ type
      cleaning up can be performed.
   */}
   ProjectClosedEventHandler
-    = public block;
+    = public block ();
 
 {/*! Occurs when TransModeler is shutting down. */}
   TsmApplicationShutdownEventHandler
-    = public block;
+    = public block ();
 
 
 //---------------------------------------------
@@ -730,14 +730,12 @@ type
 
     method SetEventSinkConnection(aEventSinkTypes: TsmEventSinkTypes; aConnected: Boolean);
     begin
-      for lType in fEventSinkMap.Keys do begin
-        if (lType in aEventSinkTypes) or (TsmEventSinkType.All in aEventSinkTypes) then begin
-          if aConnected then
-            fEventSinkMap[lType].ConnectEvents()
-          else
-            fEventSinkMap[lType].DisconnectEvents();
-        end;
-      end;
+      for lType in fEventSinkMap.Keys do
+        if (lType in aEventSinkTypes) or (TsmEventSinkType.All in aEventSinkTypes) then 
+            if aConnected then 
+              fEventSinkMap[lType].ConnectEvents() 
+            else 
+              fEventSinkMap[lType].DisconnectEvents();
     end;
 
     var fEventSinkMap: Dictionary<TsmEventSinkType, ITsmEventSink>;
@@ -763,21 +761,10 @@ type
     begin
       fEventSinkMap := new Dictionary<TsmEventSinkType, ITsmEventSink>;
       
-      fEventSinkMap.Add(
-        TsmEventSinkType.Sensor,
-        new TsmSensorEventSink(aTsmApp));
-      
-      fEventSinkMap.Add(
-        TsmEventSinkType.Simulation,
-        new TsmSimulationEventSink(aTsmApp));
-      
-      fEventSinkMap.Add(
-        TsmEventSinkType.Signal,
-        new TsmSignalEventSink(aTsmApp));
-      
-      fEventSinkMap.Add(
-        TsmEventSinkType.Vehicle,
-        new TsmVehicleEventSink(aTsmApp));
+      fEventSinkMap.Add( TsmEventSinkType.Sensor,     new TsmSensorEventSink(aTsmApp) );      
+      fEventSinkMap.Add( TsmEventSinkType.Simulation, new TsmSimulationEventSink(aTsmApp) );      
+      fEventSinkMap.Add( TsmEventSinkType.Signal,     new TsmSignalEventSink(aTsmApp) );      
+      fEventSinkMap.Add( TsmEventSinkType.Vehicle,    new TsmVehicleEventSink(aTsmApp) );
     end;
   end;
 

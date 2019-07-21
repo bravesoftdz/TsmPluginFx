@@ -4,7 +4,7 @@
      \modified    2019-07-02 11:19am
      \author      Wuping Xin
   */}
-namespace Tsm.Plugin.Core;
+namespace TsmPluginFx.Core;
 
 uses
   rtl;
@@ -139,5 +139,18 @@ type
     if Succeeded(lCPC.FindConnectionPoint(@IID, (^IConnectionPoint)(@lCP))) then
       lCP.Unadvise(aConnection);
   end;
+
+  method StringToLPWSTR(aSource: not nullable String; aDestination: LPWSTR; aSize: DWORD): DWORD;
+  begin
+    if not assigned(aDestination) then exit (aSource.Length + 1);  
+    
+    var lChars: array of Char := aSource.ToCharArray;
+    var lSize: DWORD := Math.Min(aSize, aSource.Length + 1);
+  
+    aDestination[lSize] := #0;
+    memcpy(aDestination, lChars, sizeOf(Char) * (lSize - 1));      
+  
+    exit lSize;  
+ end;
 
 end.

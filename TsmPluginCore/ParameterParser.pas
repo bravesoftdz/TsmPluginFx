@@ -4,7 +4,7 @@
      \modified    2019-07-03 10:20am
      \author      Wuping Xin
   */}
-namespace Tsm.Plugin.Core;
+namespace TsmPluginFx.Core;
 
 uses 
   RemObjects.Elements.RTL;
@@ -14,15 +14,8 @@ type
   public
     method AllElementsWithName(aLocalName: not nullable String; aNamespace: nullable XmlNamespace := nil; aXmlElement: XmlElement := nil): not nullable sequence of XmlElement;
     begin
-      var lXmlElement: XmlElement;
-
-      if not assigned(aXmlElement) then
-        lXmlElement := Root
-      else
-        lXmlElement := aXmlElement;
-
-      if lXmlElement.Elements.Count = 0 then 
-        exit(new List<XmlElement>);
+      var lXmlElement := if assigned(aXmlElement) then aXmlElement else Root;
+      if lXmlElement.Elements.Count = 0 then exit(new List<XmlElement>);
       
       result := lXmlElement.ElementsWithName(aLocalName, aNamespace);
 
@@ -48,21 +41,16 @@ type
               select
                 p;
 
-      if (lparamItems.Count > 1) then 
+      if (lparamItems.Count > 1) then
         raise new EParameterItemNameNotUniqueException(aName);
-      
-      if (lparamItems.Count = 0) then 
-        result := nil
-      else
-        result := lparamItems.First;
+
+      result := if lparamItems.Count > 0 then lparamItems.First;
     end;
 
     method FindPluginParameterItem(const aName: not nullable String): XmlElement;
     begin
-      var lparamItem_base, lparamItem_user, lparamItem_proj: XmlElement;
-      
       // Param item must exist in base Pml
-      lparamItem_base := FindParameterItem(aName, fBaseParamItems);
+      var lparamItem_base := FindParameterItem(aName, fBaseParamItems);
       
       if not assigned(lparamItem_base) then
         raise new EParameterItemMissingException(aName); 
@@ -70,31 +58,24 @@ type
       result := lparamItem_base;
       
       if assigned(fUserParamItems) then begin
-        lparamItem_user := FindParameterItem(aName, fUserParamItems);
-        
-        if assigned(lparamItem_user) then 
-          result := lparamItem_user;
+        var lparamItem_user := FindParameterItem(aName, fUserParamItems);        
+        result := if assigned(lparamItem_user) then lparamItem_user else result;
       end;
     
       if assigned(fProjectParamItems) then begin
-        lparamItem_proj := FindParameterItem(aName, fProjectParamItems);
-        
-        if assigned(lparamItem_proj) then 
-          result := lparamItem_proj;
+        var lparamItem_proj := FindParameterItem(aName, fProjectParamItems);        
+        result := if assigned(lparamItem_proj) then lparamItem_proj else result;
       end;
     end;
 
   public
-    constructor(const aBasePmlFilePath: not nullable String; const aUserPmlFilePath: not nullable String; const aProjectPmlFilePath: not nullable String);
+    constructor(const aBasePmlFilePath, aUserPmlFilePath, aProjectPmlFilePath: not nullable String);
     begin
       fBasePmlDoc := XmlDocument.FromFile(aBasePmlFilePath);
-      fPmlValueAttribute := fBasePmlDoc.Root.Attribute['value'];
       
       // Get the value tag. It could be "value", or "v", or anything.
-      if not assigned(fPmlValueAttribute) then
-        fPmlValueTag := 'value'
-      else
-        fPmlValueTag := fPmlValueAttribute.Value;
+      fPmlValueAttribute := fBasePmlDoc.Root.Attribute['value'];            
+      fPmlValueTag := if assigned(fPmlValueAttribute) then fPmlValueAttribute.Value else 'value';
 
       fBaseParamItems := fBasePmlDoc.AllElementsWithName('item');
 
@@ -123,12 +104,12 @@ type
         raise new EInvalidParameterItemTypeException(aName, lparamItem.Attribute['type'].Value);
       
       var lCell := lparamItem.ElementsWithName('rows')
-                    .First  // Always one and only one element named "rows".
-                    .ElementsWithName('row')
-                    .ToArray[aRow]
-                    .ElementsWithName(fPmlValueTag)
-                    .ToArray[aColumn];
-      
+                             .First  // Only one element named "rows".
+                             .ElementsWithName('row')
+                             .ToArray[aRow]
+                             .ElementsWithName(fPmlValueTag)
+                             .ToArray[aColumn];
+
       result := lCell.Value;
     end;
   end;

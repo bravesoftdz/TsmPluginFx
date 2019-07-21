@@ -4,7 +4,7 @@
      \modified    2019-07-09 14:37pm
      \author      Wuping Xin
   */}
-namespace Tsm.Plugin.Core;
+namespace TsmPluginFx.Core;
 
 uses 
   rtl;
